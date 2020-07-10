@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      3.4.2.5
+// @version      3.4.2.6
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -12,7 +12,6 @@
 // @connect      guild.gamer.com.tw
 // @connect      ani.gamer.com.tw
 // @connect      home.gamer.com.tw
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @supportURL   https://home.gamer.com.tw/creationDetail.php?sn=3852242
 // ==/UserScript==
 
@@ -53,7 +52,8 @@
                     if (!signGuild) GM_setValue('LastAutoSignTime', (new Date()).getTime());
                     break;
                 case 0:
-                    startSign().then(data => console.log(data));
+                    console.log("Not signed", JSON.stringify(data));
+                    submitSign().then(data => console.log(data));
                     if (!signGuild) GM_setValue('LastAutoSignTime', (new Date()).getTime());
                     break;
                 case -1:
@@ -64,6 +64,8 @@
                         }
                     }
                     break;
+                default:
+                    console.log("Unknown status", JSON.stringify(data));
             }
 
             if (signGuild && data.signin != -1) {
@@ -139,16 +141,16 @@
                 data: 'action=2',
                 responseType: "json",
                 cache: false,
-                onload: data => resolve(data.response)
+                onload: data => resolve(data.response.data)
             });
         });
     }
 
     // sign
-    // signed: {"code":-2,"message":"今天您已經簽到過了喔"}
+    // signed: {"code":0,"message":"今天您已經簽到過了喔"}
     // not signed: {"nowd": xxx,"days": xxx,"message":"簽到成功"}
     // not logged in: {"signin":-1}
-    function startSign() {
+    function submitSign() {
         return new Promise(function (resolve) {
             GM_xmlhttpRequest({
                 method: "GET",
