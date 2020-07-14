@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      3.4.2.6
+// @version      4.0
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
+// @resource     popup_window https://raw.githubusercontent.com/moontai0724/bahamut-auto-sign-script/master/popup_window.html
+// @grant        GM_getResourceText
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
@@ -12,6 +14,8 @@
 // @connect      guild.gamer.com.tw
 // @connect      ani.gamer.com.tw
 // @connect      home.gamer.com.tw
+// @connect      script.google.com
+// @connect      script.googleusercontent.com
 // @supportURL   https://home.gamer.com.tw/creationDetail.php?sn=3852242
 // ==/UserScript==
 
@@ -19,117 +23,120 @@
     'use strict';
     // 是否自動簽到公會？
     // true 為是，false 為否。
-    var signGuild = true;
+    const DO_SIGN_GUILD = true;
 
-    // 是否開啟每日動畫瘋作答？
+    // 是否開啟每日動畫瘋作答？開啟則為每日題目出來會跳視窗可作答。
     // true 為是，false 為否。
-    var answerAnime = true;
+    const DO_ANSWER_ANIME = true;
 
-    // 是否自動從 blackxblue 小屋創作獲取每日動畫瘋答案？
+    // 是否自動作答動畫瘋題目？
     // true 為是，false 為否。
+    const AUTO_ANSWER_ANIME = false;
+
+    // 答案來源是否採用 blackxblue 每日發表的資訊？
+    // true 為是，false 為否。
+    // 將會自動從 blackxblue 小屋創作獲取每日動畫瘋答案。
     // 若是，首次使用將跳出訂閱 blackxblue 小屋的提示。
     //       當如果答案提供者尚未發表答案，會跳出手動作答視窗，可以選擇作答或是延後提醒。
     //       若延後，當時間到了，會檢查答案出來了沒？如果答案出來了，就會自動作答；還沒，就會再跳視窗。
     // 若否，每日尚未作答題目時，將會跳出手動答題視窗。
     // 請注意，答案不保證正確性，若當日答錯無法領取獎勵，我方或答案提供方並不為此負責。
-    var autoGetAnimeAnsFromblackxblue = false;
+    const ANSWER_SOURCE_blackxblue = true;
+
+    // ***上下兩種來源可同時啟用，會先採用 blackxblue 的資訊，若沒有，再搜尋資料庫。***
+
+    // 答案來源是否採用非官方資料庫的資訊？
+    // true 為是，false 為否。
+    // 
+    // ***使用此種方法搜索答案，最高可能會到 30 秒，建議作為備案使用。***
+    // 
+    // 若仍找不到答案，還是會跳手動作答視窗。
+    // 詳細資料：https://home.gamer.com.tw/creationDetail.php?sn=3924920
+    const ANSWER_SOURCE_DB = true;
 
     // 如果當天 00:00 後幾分鐘內答案還沒出來，不要提醒我手動作答？1440 分鐘 = 24 小時 = 不提醒
-    var dailyDelayNotice = 0;
+    const NOTICE_DELAY = 0;
 
     // ----------------------------------------------------------------------------------------------------
 
     // 程式開始
-    var LastAutoSignTime = GM_getValue('LastAutoSignTime') ? Number(GM_getValue('LastAutoSignTime')) : 0;
-    var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    if (!(today < LastAutoSignTime && LastAutoSignTime < today + 86400000)) {
-        if (GM_getValue('AnimeQuizAnswered') == true) GM_setValue('AnimeQuizAnswered', false);
-        checkSign().then(data => {
-            switch (data.signin) {
-                case 1:
-                    console.log("Signed", JSON.stringify(data));
-                    if (!signGuild) GM_setValue('LastAutoSignTime', (new Date()).getTime());
-                    break;
-                case 0:
-                    console.log("Not signed", JSON.stringify(data));
-                    submitSign().then(data => console.log(data));
-                    if (!signGuild) GM_setValue('LastAutoSignTime', (new Date()).getTime());
-                    break;
-                case -1:
-                    console.log("Not logged in", JSON.stringify(data));
-                    if (location.href != 'https://user.gamer.com.tw/login.php') {
-                        if (window.confirm('您尚未登入！簽到作業無法正確執行。是否立刻導向至登入網頁？')) {
-                            location.href = 'https://user.gamer.com.tw/login.php';
-                        }
-                    }
-                    break;
-                default:
-                    console.log("Unknown status", JSON.stringify(data));
-            }
+    const TODAY = new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" });
 
-            if (signGuild && data.signin != -1) {
-                GM_xmlhttpRequest({
-                    method: "get",
-                    url: "/ajax/topBar_AJAX.php?type=guild",
-                    cache: false,
-                    onload: data => {
-                        data = data.response;
-                        if (data != '') {
-                            let guild_list = jQuery(data).find('a.TOP-msgpic').map((index, value) => (new URL(value.href)).searchParams.get('sn'));
-                            console.log(guild_list, "length: " + guild_list.length);
-                            guild_list.length > 0 ? (function sign(sort) {
-                                GM_xmlhttpRequest({
-                                    method: 'POST',
-                                    url: 'https://guild.gamer.com.tw/ajax/guildSign.php',
-                                    cache: false,
-                                    data: 'sn=' + guild_list[sort],
-                                    headers: {
-                                        "Content-Type": "application/x-www-form-urlencoded",
-                                    },
-                                    onload: data => {
-                                        console.log("signed: ", guild_list[sort]);
-                                        sort < guild_list.length - 1 ? sign(sort + 1) : (console.log('Guild sign success!'), GM_setValue('LastAutoSignTime', (new Date()).getTime()));
-                                    }
-                                });
-                            })(0) : (console.log('No guild.'), GM_setValue('LastAutoSignTime', (new Date()).getTime()));
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    // 動畫瘋答題由 maple3142/動畫瘋工具箱 支援：https://greasyfork.org/zh-TW/scripts/39136
-    if (answerAnime && GM_getValue('AnimeQuizAnswered') != true && BAHAID && (GM_getValue('answerAnimeDelayTime') ? GM_getValue('answerAnimeDelayTime') : 0) < (new Date()).getTime()) {
-        if (GM_getValue('AnimeQuizAnswered') == undefined) {
-            if (window.confirm('您選擇了自動由 blackxblue 小屋獲取答案，是否訂閱 blackxblue？（此訊息只會在初次開啟時出現）')) topNotify_follow('blackxblue');
+    if (BAHAID) console.log("bas: ", "BAHAID: ", BAHAID);
+    else {
+        console.error("bas: ", "No BAHAID");
+        if (GM_getValue("error_notify", null) !== TODAY) {
+            window.alert("自動簽到遇到問題，無法正常運作！（僅提醒這一次，通常是沒登入造成問題，若已登入可能需重新登入。）");
+            GM_setValue("error_notify", TODAY);
         }
-        if (autoGetAnimeAnsFromblackxblue) {
-            getTodayAnswer().then(data => answerQuestion(data).then(function (result) {
-                console.log("\u7B54\u984C\u6210\u529F: ".concat(result.gift));
-            }, function (err) {
-                console.error("\u56DE\u7B54\u554F\u984C\u5931\u6557: ".concat(err.msg));
-            }), () => {
-                if (((new Date(new Date().setHours(0, 0, 0, 0))).getTime() + dailyDelayNotice * 1000) < (new Date()).getTime()) {
-                    getQuestion().then(question => {
-                        if (question.error) GM_setValue('AnimeQuizAnswered', true);
-                        else manualAnswer(question);
-                    });
-                }
-            });
-        } else getQuestion().then(question => {
-            if (question.error) GM_setValue('AnimeQuizAnswered', true);
-            else manualAnswer(question);
-        });
+        return;
     }
 
-    // days: 已連續簽到天數
+    let question = null;
+
+    // 每日簽到
+    const SIGN_DATE = GM_getValue("sign_date", null);
+    /** @type {String[]} */
+    let accounts_signed = GM_getValue("accounts_signed", []);
+
+    if (SIGN_DATE !== TODAY)
+        accounts_signed = [];
+
+    if (accounts_signed.includes(BAHAID) === false)
+        startDailySign();
+
+    // 公會簽到
+    const GUILD_SIGN_DATE = GM_getValue("guild_sign_date", null);
+    /** @type {Object.<String, Number[]>} */
+    let accounts_signed_guilds = GM_getValue("accounts_signed_guilds", []);
+
+    if (GUILD_SIGN_DATE !== TODAY)
+        accounts_signed_guilds = [];
+
+    if (DO_SIGN_GUILD && accounts_signed_guilds.includes(BAHAID) === false)
+        startGuildSign();
+
+    // 動畫瘋題目
+    const ANIME_ANSWER_DATE = GM_getValue("anime_answer_date", null);
+    const ANIME_ANSWER_POSTPONE = GM_getValue("anime_answer_postpone", 0);
+    /** @type {String[]} */
+    let accounts_answered = GM_getValue("accounts_answered", []);
+
+    if (ANIME_ANSWER_DATE !== TODAY)
+        accounts_answered = [];
+
+    if (DO_ANSWER_ANIME &&
+        accounts_answered.includes(BAHAID) === false &&
+        Date.now() - new Date(TODAY) > NOTICE_DELAY * 60000 &&
+        Date.now() > ANIME_ANSWER_POSTPONE)
+        startAnswerAnime();
+
+    /**
+     * Start daily sign.
+     * @returns {void} Nothing, just do it!
+     */
+    function startDailySign() {
+        console.log("bas: ", "開始每日簽到");
+        submitDailySign().then(response => {
+            if (response.data && response.data.days || response.error.code == 0 || response.error.message == "今天您已經簽到過了喔") {
+                // 簽到成功或已簽到
+                console.log("bas: ", "簽到成功！", response);
+                GM_setValue("sign_date", TODAY);
+                accounts_signed.push(BAHAID);
+                GM_setValue("accounts_signed", accounts_signed);
+            } else
+                console.error("bas: ", "簽到發生錯誤！", response);
+        });
+    }
 
     // check
-    // signed: {"signin": 1,"days": xxx}
-    // not signed: {"signin":0,"days":0}
-    // not logged in: {"signin":-1}
+    // signed: {"days": 5, "signin": 1}
+    // not signed: {"days": 0, "signin": 0}
+    // not logged in: {"days": 0, "signin": 0}
+    /**
+     * 檢查每日簽到狀態
+     * @returns {Promise} 伺服器回傳
+     */
     function checkSign() {
         return new Promise(function (resolve) {
             GM_xmlhttpRequest({
@@ -138,7 +145,7 @@
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded;",
                 },
-                data: 'action=2',
+                data: "action=2",
                 responseType: "json",
                 cache: false,
                 onload: data => resolve(data.response.data)
@@ -147,10 +154,14 @@
     }
 
     // sign
-    // signed: {"code":0,"message":"今天您已經簽到過了喔"}
-    // not signed: {"nowd": xxx,"days": xxx,"message":"簽到成功"}
-    // not logged in: {"signin":-1}
-    function submitSign() {
+    // signed: {"code": 0, "message": "今天您已經簽到過了喔"}
+    // not signed: {"days": 5, "dialog": ""}
+    // not logged in: {code: 401, message: "尚未登入", status: "NO_LOGIN", details: []}
+    /**
+     * 送出每日簽到
+     * @returns {Promise} 伺服器回傳
+     */
+    function submitDailySign() {
         return new Promise(function (resolve) {
             GM_xmlhttpRequest({
                 method: "GET",
@@ -162,7 +173,7 @@
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded;",
                     },
-                    data: 'action=1&token=' + token.response,
+                    data: "action=1&token=" + token.response,
                     responseType: "json",
                     cache: false,
                     onload: data => resolve(data.response)
@@ -171,208 +182,354 @@
         });
     }
 
-    function getCORS(url) {
-        return new Promise(function (res, rej) {
+    /**
+     * Fetch guild list from https://home.gamer.com.tw/joinGuild.php
+     * @returns {Promise<Number[]>} Array of guild numbers.
+     */
+    function getGuilds() {
+        console.log("bas: ", "獲取公會列表");
+        return new Promise(resolve => {
             GM_xmlhttpRequest({
-                method: 'GET',
-                url: url,
-                responseType: 'text',
-                onload: function onload(r) {
-                    return res(r.response);
-                },
-                onerror: rej
-            });
-        });
-    }
-
-    // 從 blackxblue 創作獲取今日動畫瘋解答
-    function getTodayAnswer() {
-        return new Promise((resolve, reject) => {
-            getCORS('https://home.gamer.com.tw/creationCategory.php?owner=blackxblue&c=370818').then(function (page) {
-                var url = jQuery(page).find('.TS1')[0];
-                url = new RegExp('\\d{2}/' + (new Date()).getDate().toString().padStart(2, '0')).test(url.textContent) ? url.getAttribute('href') : undefined;
-                if (!url) {
-                    reject('No url found.');
-                    return 0;
+                method: "GET",
+                url: "https://home.gamer.com.tw/joinGuild.php",
+                cache: false,
+                onload: html => {
+                    let guilds = Array.from(jQuery(html.response).find(".acgbox").map((index, element) => element.id.match(/\d+/)[0])).filter(value => !isNaN(value));
+                    console.log("bas: ", "獲取到的公會列表: ", guilds);
+                    resolve(guilds);
                 }
-                getCORS('https://home.gamer.com.tw/' + url).then(page => resolve(/A:(\d)/.exec(jQuery(page).find('.MSG-list8C').text().replace(/\s/g, "").replace(/：/g, ":"))[1]));
             });
         });
     }
 
-    function answerQuestion(t) {
+    /**
+     * Start guild sign.
+     * @returns {void} Nothing, just do it!
+     */
+    async function startGuildSign() {
+        /** @type {Number[]} */
+        let guilds = await getGuilds();
+
+        Promise.all(guilds.map(submitGuildSign)).then(function (responses) {
+            console.log("bas: ", "公會簽到結束", responses);
+            GM_setValue("guild_sign_date", TODAY);
+            accounts_signed_guilds.push(BAHAID);
+            GM_setValue("accounts_signed_guilds", accounts_signed_guilds);
+        }, function (error) {
+            console.error("bas: ", "簽到公會時發生錯誤。", error);
+        });
+    }
+
+    // signed: {error: 1, msg: "您今天已經簽到過了！"}
+    /**
+     * 送出公會簽到
+     * @param {Number} sn 公會編號
+     * @returns {Promise} 伺服器回傳
+     */
+    function submitGuildSign(sn) {
+        console.log("bas: ", `開始公會 ${sn} 簽到`);
         return new Promise(function (resolve, reject) {
-            getQuestion().then(obj => {
+            GM_xmlhttpRequest({
+                method: "POST",
+                url: "https://guild.gamer.com.tw/ajax/guildSign.php",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                data: "sn=" + sn,
+                cache: false,
+                responseType: "json",
+                onload: data => resolve(data.response),
+                onerror: reject
+            });
+        });
+    }
+
+    // 動畫瘋答題由 maple3142/動畫瘋工具箱 支援：https://greasyfork.org/zh-TW/scripts/39136
+    /**
+     * 開始動畫瘋問題回答
+     * @returns {void} Nothing, just do it!
+     */
+    async function startAnswerAnime() {
+        let question = await getQuestion();
+        if (!question.error && AUTO_ANSWER_ANIME === false) {
+            console.log("bas: ", "進入手動作答動畫瘋", question);
+            manualAnswer(question);
+        } else if (!question.error && AUTO_ANSWER_ANIME === true) {
+            console.log("bas: ", "進入自動作答動畫瘋", question);
+            let answer = await getAnswer().catch(console.error);
+            console.log("bas: ", "自動作答獲取到答案為：", answer);
+            if (answer)
+                submitAnswer(answer).then(result => console.log("bas: ", "答案送出成功", result)).catch(error => console.error("bas: ", "送出答案發生錯誤", error));
+            else
+                manualAnswer(question);
+        } else {
+            console.log("bas: ", "已作答過動畫瘋題目", question);
+            GM_setValue("anime_answer_date", TODAY);
+            accounts_answered.push(BAHAID);
+            GM_setValue("accounts_answered", accounts_answered);
+        }
+    }
+
+    let answer = null;
+    /**
+     * 獲取題目答案
+     * @returns {Promise<Number | null>} 獲取到的答案
+     */
+    function getAnswer() {
+        return new Promise(async function (resolve, reject) {
+            if (answer) return resolve(answer);
+            switch (ANSWER_SOURCE_blackxblue + ANSWER_SOURCE_DB * 2) {
+                case 3:
+                    answer = await getAnswer_blackxblue().catch(async err => await getAnswer_DB().catch(console.error));
+                    console.log("bas: ", "獲取到答案為：", answer);
+                    break;
+                case 2:
+                    answer = await getAnswer_DB().catch(console.error);
+                    console.log("bas: ", "從資料庫獲取到答案為：", answer);
+                    break;
+                case 1:
+                default:
+                    answer = await getAnswer_blackxblue().catch(console.error);
+                    console.log("bas: ", "從 blackxblue 小屋獲取到答案為：", answer);
+                    break;
+            }
+            if (answer) resolve(answer);
+            else reject("No answer found.");
+        });
+    }
+
+    /**
+     * 從 blackxblue 創作獲取今日動畫瘋解答
+     * @returns {Promise<Number>} If answer found, return answer.
+     */
+    function getAnswer_blackxblue() {
+        if (GM_getValue("anime_answer_date") == undefined)
+            if (window.confirm("您選擇了由 blackxblue 小屋獲取答案，是否訂閱 blackxblue？（作答過問題就不會再出現提醒）"))
+                follow("blackxblue");
+        return new Promise(function (resolve, reject) {
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "https://home.gamer.com.tw/creation.php?owner=blackxblue",
+                responseType: "text",
+                onload: function (page) {
+                    let result = jQuery(page.response).find(".TS1").filter((index, element) => new RegExp(new Date().toLocaleDateString("zh-TW", { month: "2-digit", day: "2-digit" })).test(element.textContent));
+                    console.log("bas: ", "從 blackxblue 小屋找到今日動畫瘋文章 ID：", result, result[0].getAttribute("href"));
+                    if (result.length > 0) {
+                        GM_xmlhttpRequest({
+                            method: "GET",
+                            url: "https://home.gamer.com.tw/" + result[0].getAttribute("href"),
+                            responseType: "text",
+                            onload: page => {
+                                let result = /A:(\d)/.exec(jQuery(page.response).find(".MSG-list8C").text().replace(/\s/g, "").replace(/：/g, ":"));
+                                if (result) {
+                                    console.log("bas: ", "在創作中找到答案為：", result);
+                                    resolve(result[1]);
+                                } else {
+                                    console.error("bas: ", "在創作中無法找到答案。");
+                                    reject("No result found in post.");
+                                }
+                            }
+                        });
+                    } else {
+                        console.error("bas: ", "沒有找到今日的創作。");
+                        reject("No matched post found.");
+                    }
+                },
+                onerror: reject
+            });
+        });
+    }
+
+    /**
+     * 從資料庫獲取答案
+     * @returns {Promise<Number>} If answer found, return answer.
+     */
+    function getAnswer_DB() {
+        return new Promise(function (resolve, reject) {
+            getQuestion().then(function (question) {
                 GM_xmlhttpRequest({
-                    method: 'POST',
-                    url: 'https://ani.gamer.com.tw/ajax/animeAnsQuestion.php',
+                    method: "GET",
+                    url: "https://script.google.com/macros/s/AKfycbxYKwsjq6jB2Oo0xwz4bmkd3-5hdguopA6VJ5KD/exec?type=quiz&question=" + encodeURIComponent(question.question),
                     responseType: "json",
-                    cache: false,
+                    onload: function (response) {
+                        if (response.response.success)
+                            resolve(response.response.message.answer);
+                        else
+                            reject();
+                    },
+                    onerror: reject
+                });
+            }).catch(reject);
+        });
+    }
+
+    /**
+     * 作答動畫瘋題目
+     * @param {Number} answer 有效答案 1 - 4
+     * @returns {Promise<Boolean>} 答案正確與否
+     */
+    function submitAnswer(answer) {
+        return new Promise(function (resolve, reject) {
+            console.log("bas: ", "送交答案中...", answer);
+            getQuestion().then(question => {
+                GM_xmlhttpRequest({
+                    method: "POST",
+                    url: "https://ani.gamer.com.tw/ajax/animeAnsQuestion.php",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded;",
                     },
-                    data: 'token=' + obj.token + '&ans=' + t + '&t=' + Date.now(),
-                    onload: o => {
-                        GM_setValue('AnimeQuizAnswered', true);
-                        if (o.response.error || o.response.msg === '答題錯誤') reject(o.response);
-                        else resolve(o.response);
+                    data: "token=" + question.token + "&ans=" + answer + "&t=" + Date.now(),
+                    responseType: "json",
+                    cache: false,
+                    onload: response => {
+                        console.log("bas: ", "答案已送交！", response);
+                        if (response.response.error || response.response.msg === "答題錯誤") {
+                            console.error("bas: ", "答案錯誤！", response, response.response);
+                            reject(response.response);
+                        } else {
+                            console.log("bas: ", "答案正確", response, response.response);
+                            GM_setValue("anime_answer_date", TODAY);
+                            accounts_answered.push(BAHAID);
+                            GM_setValue("accounts_answered", accounts_answered);
+                            resolve(response.response);
+                        }
                     }
                 });
+            }, reject);
+        });
+    }
+
+    // not answered: { "game": "龍王的工作！", "question": "龍王的弟子是以下哪位?", "a1": "空銀子", "a2": "雛鶴愛", "a3": "水越澪", "a4": "貞任綾乃", "userid": "ww891113", "token": "01e0779c7298996032acdacac3261fac28d32e8bb44f4dda5badb111" }
+    // answered: { "error": 1, "msg": "今日已經答過題目了，一天僅限一次機會" }
+    /**
+     * 獲取本日題目資料
+     * @returns {JSON | Promise<JSON>} 題目資料
+     */
+    function getQuestion() {
+        if (question) return Promise.resolve(question);
+        return new Promise(function (resolve, reject) {
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "https://ani.gamer.com.tw/ajax/animeGetQuestion.php?t=" + Date.now(),
+                responseType: "json",
+                cache: false,
+                onload: data => {
+                    question = data.response;
+                    resolve(data.response);
+                },
+                onerror: reject
             });
         });
     }
 
-    function getQuestion() {
-        return new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: 'GET',
-                url: 'https://ani.gamer.com.tw/ajax/animeGetQuestion.php?t=' + Date.now(),
-                responseType: "json",
-                cache: false,
-                onload: data => resolve(data.response),
-                onerror: reject
-            })
-        })
-    }
-
-    // 巴哈原生訂閱
-    function topNotify_follow(t) {
+    /**
+     * 跳巴哈原生訂閱視窗
+     * @param {String} user 巴友帳號
+     * @returns {void} Nothing, just do it!
+     */
+    function follow(user) {
         var c = "";
-        c += '<form action="" method="POST" name="notifyfollow"><table border="0" width="400px"><tr>',
-            c += '<td><input name="c1" type="checkbox" value="1" checked/>叭啦叭啦</td>',
-            c += '<td><input name="c2" type="checkbox" value="2" checked/>哈啦區發表</td>',
-            c += '<td><input name="c3" type="checkbox" value="4" checked/>小屋發表</td>',
-            c += '<td><input name="c4" type="checkbox" value="16" checked/>他的推薦</td>',
-            c += '<td><input name="c5" type="checkbox" value="32" checked/>實況頻道</td>',
-            c += '</tr></table></form>',
-            egg.mutbox(c, "訂閱 blackxblue 動態", {
+        c += "<form action=\"\" method=\"POST\" name=\"notifyfollow\"><table border=\"0\" width=\"400px\"><tr>",
+            c += "<td><input name=\"c1\" type=\"checkbox\" value=\"1\" checked/>叭啦叭啦</td>",
+            c += "<td><input name=\"c2\" type=\"checkbox\" value=\"2\" checked/>哈啦區發表</td>",
+            c += "<td><input name=\"c3\" type=\"checkbox\" value=\"4\" checked/>小屋發表</td>",
+            c += "<td><input name=\"c4\" type=\"checkbox\" value=\"16\" checked/>他的推薦</td>",
+            c += "<td><input name=\"c5\" type=\"checkbox\" value=\"32\" checked/>實況頻道</td>",
+            c += "</tr></table></form>",
+            egg.mutbox(c, `訂閱 ${user} 動態`, {
                 "訂閱": function () {
-                    topNotify_follow2(t)
+                    submit_follow(user);
                 }
             });
     }
 
-    function topNotify_follow2(t) {
-        var e = document.forms.notifyfollow,
-            a = 0;
-        return e.c1.checked && (a |= e.c1.value),
-            e.c2.checked && (a |= e.c2.value),
-            e.c3.checked && (a |= e.c3.value),
-            e.c4.checked && (a |= e.c4.value),
-            e.c5.checked && (a |= e.c5.value),
+    /**
+     * 送出追蹤請求
+     * @param {String} user 巴友帳號
+     * @returns {void} Nothing, just do it!
+     */
+    function submit_follow(user) {
+        var form = document.forms.notifyfollow,
+            value = 0;
+        return form.c1.checked && (value |= form.c1.value),
+            form.c2.checked && (value |= form.c2.value),
+            form.c3.checked && (value |= form.c3.value),
+            form.c4.checked && (value |= form.c4.value),
+            form.c5.checked && (value |= form.c5.value),
             GM_xmlhttpRequest({
-                method: "POST",
-                url: "https://home.gamer.com.tw/ajax/addFollow_AJAX.php",
+                method: "GET",
+                url: "https://home.gamer.com.tw/ajax/getCSRFToken.php",
                 cache: false,
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded;",
-                },
-                data: "who=" + t + "&v=" + a,
-                onload: function (t) {
-                    egg.lightbox.close(), egg.mutbox(t.response, "訂閱動態")
-                }
+                onload: token => GM_xmlhttpRequest({
+                    method: "POST",
+                    url: "https://home.gamer.com.tw/ajax/addFollow_AJAX.php",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded;",
+                    },
+                    data: `who=${user}&v=${value}&token=${token.response}`,
+                    cache: false,
+                    onload: function (response) {
+                        egg.lightbox.close(), egg.mutbox(response.response, "訂閱動態")
+                    }
+                })
             }), !1
     }
 
-    // 手動回答
-    function manualAnswer(data) {
-        // black background
-        let manualAnswer_Background = document.createElement("div");
-        manualAnswer_Background.id = "manualAnswer_Background";
-        manualAnswer_Background.setAttribute("onmousedown", "javascript:if(!jQuery(this).hasClass('mouseenter')) jQuery('#manualAnswer_Background').remove();");
-        manualAnswer_Background.style = "background-color: rgba(0, 0, 0, 0.5); z-index: 95; position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%; padding-top: 35px;" +
-            " border: 1px solid #a7c7c8;" +
-            " display: flex; align-items: center; justify-content: center;" +
-            " -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;";
-        document.body.appendChild(manualAnswer_Background);
+    /**
+     * 跳出手動作答視窗
+     * @param {JSON} question 題目資料
+     * @returns {void} Nothing, just do it!
+     */
+    function manualAnswer(question) {
+        jQuery("body").append(GM_getResourceText("popup_window"));
 
-        // window case
-        let manualAnswer_Case = document.createElement("div");
-        manualAnswer_Case.id = "manualAnswer_Case";
-        manualAnswer_Case.setAttribute("onmouseenter", "javascipt:jQuery('#manualAnswer_Background').addClass('mouseenter');");
-        manualAnswer_Case.setAttribute("onmouseleave", "javascipt:jQuery('#manualAnswer_Background').removeClass('mouseenter');");
-        manualAnswer_Case.style = "position: absolute; min-height: 50%; min-width: 40%; overflow: hidden;" +
-            " display: flex; align-item: stretch; flex-direction: column;" +
-            " background-color: #FFFFFF; border: 1px solid #a7c7c8;";
-        document.getElementById("manualAnswer_Background").appendChild(manualAnswer_Case);
+        jQuery(".bas.popup.header").text((new Date()).toLocaleString("zh-tw", { month: "2-digit", day: "2-digit" }) + " 動漫通").addClass(AUTO_ANSWER_ANIME ? "auto-answer-on" : "auto-answer-off");
 
-        // title
-        let manualAnswer_Title = document.createElement("div");
-        manualAnswer_Title.setAttribute("style", "display: flex; align-items: center; justify-content: center; width: 100%; min-height: 35px;" +
-            " background-color: #E5F7F8; color: #484b4b;" +
-            " font-size: 22px; font-weight: bold; font-family: '微軟正黑體', 'Microsoft JhengHei', '黑體-繁', '蘋果儷中黑', 'sans-serif';");
-        manualAnswer_Title.innerHTML = (new Date()).toLocaleString('zh-tw', { month: 'numeric', day: 'numeric' }) + " 動漫通 手動作答";
-        document.getElementById("manualAnswer_Case").appendChild(manualAnswer_Title);
+        jQuery(".bas.popup.question span").text(question.question);
+        jQuery(".bas.popup.option-1").text(question.a1).on("click", event => doAnswer(1));
+        jQuery(".bas.popup.option-2").text(question.a2).on("click", event => doAnswer(2));
+        jQuery(".bas.popup.option-3").text(question.a3).on("click", event => doAnswer(3));
+        jQuery(".bas.popup.option-4").text(question.a4).on("click", event => doAnswer(4));
+        jQuery(".bas.popup.author a").text(question.userid).attr("href", `https://home.gamer.com.tw/${question.userid}`);
+        jQuery(".bas.popup.accociated-anime span").text(question.game);
 
-        // content
-        let manualAnswer_Content = document.createElement("div");
-        manualAnswer_Content.id = "manualAnswer_Content";
-        manualAnswer_Content.setAttribute("style", "display: flex; align-items: center; justify-content: center; flex-flow: row wrap; flex-grow: 1; overflow: auto; padding: 10px;" +
-            " background-color: #FFFFFF;" +
-            " word-break: break-all; font-size: 16px; line-height: 150%; text-align: center; font-family: 微軟正黑體, Microsoft JhengHei, 黑體-繁, 蘋果儷中黑, sans-serif;" +
-            " -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;");
-        manualAnswer_Content.innerHTML = '<div>關聯動漫：' + data.game + '<br>問題：' + data.question + '<br>1. ' + data.a1 + '<br>2. ' + data.a2 + '<br>3. ' + data.a3 + '<br>4. ' + data.a4 + '<br>出題者：' + data.userid + '<br>到官方粉絲團找答案：<a href="https://www.facebook.com/animategamer" target="_blank">https://www.facebook.com/animategamer</a></div>';
-        document.getElementById("manualAnswer_Case").appendChild(manualAnswer_Content);
-
-        // bottom element
-        let manualAnswer_BottomArea = document.createElement("div");
-        manualAnswer_BottomArea.id = "manualAnswer_BottomArea";
-        manualAnswer_BottomArea.style = "display: flex; align-items: center; justify-content: center;" +
-            " background-color: #E5F7F8;" +
-            " width: 100%; min-height: 35px;";
-        document.getElementById('manualAnswer_Case').appendChild(manualAnswer_BottomArea);
-
-        // Answer button
-        let manualAnswer_AnswerButton = document.createElement('button');
-        manualAnswer_AnswerButton.innerHTML = '作答';
-        manualAnswer_AnswerButton.id = 'manualAnswer_AnswerButton';
-        document.getElementById('manualAnswer_BottomArea').appendChild(manualAnswer_AnswerButton);
-
-        // Answer button
-        let manualAnswer_getAnswerButton = document.createElement('button');
-        manualAnswer_getAnswerButton.innerHTML = '獲取答案';
-        manualAnswer_getAnswerButton.id = 'manualAnswer_getAnswerButton';
-        manualAnswer_getAnswerButton.style = 'margin-left: 10px;';
-        document.getElementById('manualAnswer_BottomArea').appendChild(manualAnswer_getAnswerButton);
-
-        document.getElementById('manualAnswer_BottomArea').innerHTML += '<div style="margin-left: 10px;">延後 ' +
-            '<input type="number" name="manualAnswer_DelayTime" min="1" max="1440" value="10">' +
-            ' 分鐘後再提醒我<button id="manualAnswer_DelayButton" style="margin-left: 10px;">延時</button></div>';
-
-        document.getElementById('manualAnswer_AnswerButton').onclick = () => {
-            if (GM_getValue('AnimeQuizAnswered') != true) {
-                let Ans = undefined, times = 0;
-                do {
-                    Ans = window.prompt('請輸入答案 (1,2,3,4)');
-                    times++;
-                } while (!(/^[1|2|3|4]?$/.test(Ans) || times > 10));
-
-                if (/^[1|2|3|4]?$/.test(Ans)) {
-                    answerQuestion(Ans).then(function (result) {
-                        console.log("\u7B54\u984C\u6210\u529F: ".concat(result.gift));
-                        document.getElementById('manualAnswer_Content').innerHTML = "\u7B54\u984C\u6210\u529F: ".concat(result.gift);
-                    }, function (err) {
-                        console.error("\u56DE\u7B54\u554F\u984C\u5931\u6557: ".concat(err.msg));
-                        document.getElementById('manualAnswer_Content').innerHTML = "\u56DE\u7B54\u554F\u984C\u5931\u6557: ".concat(err.msg);
-                    });
-                    GM_setValue('AnimeQuizAnswered', true);
-                    document.getElementById('manualAnswer_AnswerButton').innerHTML = '關閉';
-                    document.getElementById('manualAnswer_AnswerButton').setAttribute('onclick', "jQuery('#manualAnswer_Background').remove();");
-                }
-            }
+        function doAnswer(answer) {
+            console.log("bas: ", "User input answer: ", answer);
+            submitAnswer(answer).then(function (result) {
+                console.log("bas: ", result);
+                console.log("bas: ", "作答成功！", result.gift);
+                jQuery("main.bas.popup.body").text("作答成功！".concat(result.gift)).css("padding", "30px");
+                jQuery("#bas-get-answer").prop("disabled", true);
+                jQuery("#bas-delay").prop("disabled", true);
+            }, function (err) {
+                console.log("bas: ", err);
+                console.error("bas: ", "作答發生問題！", err.msg);
+                if (err.msg == "答題錯誤")
+                    jQuery("main.bas.popup.body").text("答錯囉＞＜！").css("padding", "30px");
+                else
+                    jQuery("main.bas.popup.body").text("作答發生問題！".concat(err.msg).concat("＞＜！")).css("padding", "30px");
+            });
         }
 
-        document.getElementById('manualAnswer_getAnswerButton').onclick = () => getTodayAnswer().then(ans => window.alert('從 blackxblue 小屋獲取的答案可能是：' + ans), err => window.alert('目前尚未有答案＞＜可至官方粉絲團尋找答案哦～'));
+        jQuery("#bas-get-answer").on("click", () => {
+            jQuery("#bas-get-answer").prop("disabled", true);
+            getAnswer().then(ans => {
+                window.alert("獲取的答案可能是：" + ans);
+                jQuery("#bas-get-answer").prop("disabled", false);
+            }, err => {
+                window.alert("目前尚未有答案＞＜可至官方粉絲團尋找答案哦～");
+                jQuery("#bas-get-answer").prop("disabled", false);
+            });
+        });
 
-        document.getElementById('manualAnswer_DelayButton').onclick = () => {
-            let delayTime = document.getElementsByName('manualAnswer_DelayTime')[0].value;
+        jQuery("#bas-delay").on("click", () => {
+            let delayTime = jQuery("#delay-time").val();
             if (1440 >= Number(delayTime) && Number(delayTime) >= 1) {
-                GM_setValue('answerAnimeDelayTime', (new Date()).getTime() + Number(delayTime) * 60 * 1000);
-                jQuery('#manualAnswer_Background').remove();
+                GM_setValue("anime_answer_postpone", (new Date()).getTime() + Number(delayTime) * 60 * 1000);
+                jQuery(".bas").remove();
             } else {
-                window.alert('延時時間必須介於 1 到 1440 之間！');
+                window.alert("延時時間必須介於 1 到 1440 之間！");
             }
-        }
+        });
     }
-    // manualAnswer({ "game": "\u9f8d\u738b\u7684\u5de5\u4f5c\uff01", "question": "\u9f8d\u738b\u7684\u5f1f\u5b50\u662f\u4ee5\u4e0b\u54ea\u4f4d?", "a1": "\u7a7a\u9280\u5b50", "a2": "\u96db\u9db4\u611b", "a3": "\u6c34\u8d8a\u6faa", "a4": "\u8c9e\u4efb\u7dbe\u4e43", "userid": "ww891113", "token": "01e0779c7298996032acdacac3261fac28d32e8bb44f4dda5badb111" });
 })();
