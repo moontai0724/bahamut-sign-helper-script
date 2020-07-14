@@ -1,0 +1,150 @@
+<div class="bas">
+  <div class="bas popup background">
+    <section class="bas popup window">
+      <header class="bas popup header">??/?? 動漫瘋</header>
+      <main class="bas popup body">
+        <div class="bas popup question">Ｑ：<span>question（看到此代表程式出現問題，請重新整理）</span></div>
+        <div>
+          <div class="bas popup options">
+            <div class="bas popup option option-1">option-1</div>
+            <div class="bas popup option option-2">option-2</div>
+            <div class="bas popup option option-3">option-3</div>
+            <div class="bas popup option option-4">option-4</div>
+          </div>
+        </div>
+        <hr>
+        <div class="bas popup author">出題者：<a href="#" target="_blank">author</a></div>
+        <div class="bas popup accociated-anime">關聯動漫：<span>accociated-anime</span></div>
+        <div>到官方粉絲團找答案：<a href="https://www.facebook.com/animategamer" target="_blank">https://www.facebook.com/animategamer</a></div>
+      </main>
+      <footer class="bas popup footer">
+        <button id="bas-get-answer">獲取答案</button>
+        <span>
+          延後 <input id="delay-time" type="number" min="1" max="1440" value="10"> 分鐘後再提醒我
+          <button id="bas-delay">延時</button>
+          <button id="bas-close">關閉</button>
+        </span>
+      </footer>
+    </section>
+  </div>
+  <script class="bas">
+    jQuery(".bas.popup.background").on("click", function (event) {
+      if (event.target === event.currentTarget)
+        close();
+    });
+
+    jQuery("#bas-close").on("click", close);
+
+    function close() {
+      jQuery(".bas").remove();
+    }
+  </script>
+  <style class="bas">
+    .bas.popup.background {
+      font-family: "Microsoft JhengHei", "LiHei Pro", "sans-serif";
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 95;
+
+      position: fixed;
+      top: 0px;
+      bottom: 0px;
+      left: 0px;
+      right: 0px;
+      width: 100vw;
+      height: 100vh;
+      padding-top: 35px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      text-align: center;
+      line-height: normal;
+    }
+
+    .bas.popup.window {
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
+      background-color: #117E96;
+      border: 1px solid #117E96;
+      border-radius: 20px;
+      overflow: hidden;
+
+      position: absolute;
+      min-width: 40%;
+
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bas.popup.window>* {
+      padding: 5px;
+    }
+
+    header.bas.popup,
+    footer.bas.popup {
+      color: white;
+    }
+
+    .bas.popup.header {
+      font-size: 1.5em;
+      font-weight: initial;
+    }
+
+    .bas.popup .auto-answer-on:after {
+      font-size: 50%;
+      color: aquamarine;
+      content: "自動作答已開啟";
+    }
+
+    .bas.popup .auto-answer-off:after {
+      font-size: 50%;
+      color: lightpink;
+      content: "自動作答已關閉";
+    }
+
+    .bas.popup.body {
+      background-color: white;
+
+      flex-grow: 1;
+      overflow: auto;
+      word-break: break-all;
+
+      font-size: 16px;
+      line-height: 150%;
+    }
+
+    .bas.popup.question {
+      margin: 10px;
+    }
+
+    .bas.popup.question::first-letter {
+      font-size: 130%;
+    }
+
+    .bas.popup.options {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .bas.popup.option {
+      flex-grow: 1;
+      min-width: 35%;
+
+      cursor: pointer;
+      padding: 5px;
+      margin: 5px 10px 5px 10px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background-color: #117E96;
+      color: white;
+    }
+
+    .bas.popup.option:hover {
+      background-color: #51A1B4;
+    }
+
+    .bas.popup.footer * {
+      margin: 0px 5px 0px 5px;
+    }
+  </style>
+</div>
