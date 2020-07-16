@@ -124,6 +124,7 @@
     .bas.popup.options {
       display: flex;
       flex-wrap: wrap;
+      counter-reset: option;
     }
 
     .bas.popup.option {
@@ -137,6 +138,11 @@
       border-radius: 10px;
       background-color: #117E96;
       color: white;
+    }
+
+    .bas.popup.option::before {
+      counter-increment: option;
+      content: counter(option) ". ";
     }
 
     .bas.popup.option:hover {
