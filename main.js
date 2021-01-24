@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      4.0
+// @version      4.1
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -60,7 +60,7 @@
     // ----------------------------------------------------------------------------------------------------
 
     // 程式開始
-    const TODAY = new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" });
+    const TODAY = new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Taipei" });
 
     if (BAHAID) console.log("bas: ", "BAHAID: ", BAHAID);
     else {
