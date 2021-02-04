@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      4.1
+// @version      4.1.1
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -329,7 +329,9 @@
                 url: "https://home.gamer.com.tw/creation.php?owner=blackxblue",
                 responseType: "text",
                 onload: function (page) {
-                    let result = jQuery(page.response).find(".TS1").filter((index, element) => new RegExp(`${MONTH}/${DATE}`).test(element.textContent));
+                    let result = jQuery(page.response)
+                        .find(".TS1")
+                        .filter((index, element) => new RegExp(`${MONTH.toString().padStart(2, '0')}/${DATE.toString().padStart(2, '0')}`).test(element.textContent));
                     console.log("bas: ", "從 blackxblue 小屋找到今日動畫瘋文章 ID：", result, result[0].getAttribute("href"));
                     if (result.length > 0) {
                         GM_xmlhttpRequest({
