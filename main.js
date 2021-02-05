@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      4.1.1
+// @version      4.1.2
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -16,8 +16,6 @@
 // @connect      home.gamer.com.tw
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
-// @connect      ajax.googleapis.com
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @supportURL   https://home.gamer.com.tw/creationDetail.php?sn=3852242
 // @noframes
 // ==/UserScript==
