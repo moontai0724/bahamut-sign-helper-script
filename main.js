@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      4.1.2
+// @version      4.1.3
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -337,7 +337,7 @@
                             url: "https://home.gamer.com.tw/" + result[0].getAttribute("href"),
                             responseType: "text",
                             onload: page => {
-                                let result = /A:(\d)/.exec(jQuery(page.response).find(".MSG-list8C").text().replace(/\s/g, "").replace(/：/g, ":"));
+                                let result = /A:(\d)/.exec(jQuery(page.response).find("#article_content").text().replace(/\s/g, "").replace(/：/g, ":"));
                                 if (result) {
                                     console.log("bas: ", "在創作中找到答案為：", result);
                                     resolve(result[1]);
