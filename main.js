@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      4.1.4
+// @version      4.1.5
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -10,6 +10,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
+// @connect      api.gamer.com.tw
 // @connect      www.gamer.com.tw
 // @connect      guild.gamer.com.tw
 // @connect      ani.gamer.com.tw
@@ -32,7 +33,7 @@
 
     // 是否自動作答動畫瘋題目？
     // true 為是，false 為否。
-    const AUTO_ANSWER_ANIME = false;
+    const AUTO_ANSWER_ANIME = true;
 
     // 答案來源是否採用 blackxblue 每日發表的資訊？
     // true 為是，false 為否。
@@ -206,10 +207,10 @@
         return new Promise(resolve => {
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "https://home.gamer.com.tw/joinGuild.php",
+                url: "https://api.gamer.com.tw/guild/v2/guild_my.php",
                 cache: false,
-                onload: html => {
-                    let guilds = Array.from(jQuery(html.response).find(".acgbox").map((index, element) => element.id.match(/\d+/)[0])).filter(value => !isNaN(value));
+                onload: response => {
+                    let guilds = JSON.parse(response.response).data.list.map(data => data.sn);
                     console.log("bas: ", "獲取到的公會列表: ", guilds);
                     resolve(guilds);
                 }
