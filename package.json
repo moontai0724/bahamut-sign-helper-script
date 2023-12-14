@@ -1,0 +1,81 @@
+{
+  "name": "bahamut-sign-helper-script",
+  "description": "巴哈姆特自動簽到腳本",
+  "license": "MIT",
+  "version": "5.0.0-alpha.1",
+  "private": true,
+  "main": "src/index.ts",
+  "author": {
+    "name": "moontai0724"
+  },
+  "homepage": "https://github.com/moontai0724/",
+  "bugs": {
+    "url": "https://github.com/moontai0724/bahamut-sign-helper-script/issues"
+  },
+  "user-script-meta": {
+    "name": "巴哈姆特自動簽到（含公會、動畫瘋）",
+    "namespace": "https://home.gamer.com.tw/moontai0724",
+    "match": [
+      "https://*.gamer.com.tw/*"
+    ],
+    "grant": [
+      "GM_getResourceText",
+      "GM_setValue",
+      "GM_getValue",
+      "GM_xmlhttpRequest"
+    ],
+    "connect": [
+      "api.gamer.com.tw",
+      "www.gamer.com.tw",
+      "guild.gamer.com.tw",
+      "ani.gamer.com.tw",
+      "home.gamer.com.tw",
+      "script.google.com",
+      "script.googleusercontent.com"
+    ]
+  },
+  "scripts": {
+    "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:style",
+    "lint:eslint": "eslint --ext \".ts,.js,.vue\" --ignore-path .gitignore .",
+    "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .gitignore --allow-empty-input",
+    "lint:prettier": "prettier --check --ignore-unknown .",
+    "dev": "pnpm ts-node-dev --project=./scripts/tsconfig.json --rs --files --respawn --watch src/ scripts/webdav.ts",
+    "build": "webpack --config webpack.config.js",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@types/node": "^20.10.3",
+    "@types/tampermonkey": "^5.0.2",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
+    "eslint-plugin-typescript-sort-keys": "^3.1.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "html-loader": "^4.2.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "3.1.0",
+    "stylelint": "^15.11.0",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-standard": "^34.0.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.2",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "lint-staged": {
+    "src/**/*.{js,vue}": "eslint --cache",
+    "src/**/*.{css,vue}": "stylelint",
+    "src/**/*.**": "prettier --check --ignore-unknown"
+  }
+}

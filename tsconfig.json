@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "baseUrl": "src",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES6",
+    "lib": ["ES6", "dom"], // enable js and dom types
+    "types": [], // disable node types
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}
