@@ -7,7 +7,7 @@
     "moduleResolution": "Bundler",
     "target": "ES6",
     "lib": ["ES6", "dom"], // enable js and dom types
-    "types": [], // disable node types
+    "types": ["@types/tampermonkey"], // disable node types
     "outDir": "dist"
   },
   "include": ["src/**/*.ts"]
