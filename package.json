@@ -16,6 +16,9 @@
     "namespace": "https://home.gamer.com.tw/moontai0724",
     "match": [
       "https://*.gamer.com.tw/*"
+    ],
+    "grant": [
+      "GM_xmlhttpRequest"
     ]
   },
   "type": "module",
