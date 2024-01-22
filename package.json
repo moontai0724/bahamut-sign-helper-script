@@ -19,6 +19,9 @@
     ],
     "grant": [
       "GM_xmlhttpRequest"
+    ],
+    "connect": [
+      "api.gamer.com.tw"
     ]
   },
   "type": "module",
