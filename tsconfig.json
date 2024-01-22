@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": [
+    "vite.config.ts",
+    "rollup.config.ts",
+    "scripts/webdav.ts",
+    "commitlint.config.cjs",
+  ],
+}
