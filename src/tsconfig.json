@@ -8,9 +8,9 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@views/*": ["../views/dist/pages/*"]
+      "@views/*": ["../views/dist/pages/*"],
     },
-    "types": [],
+    "types": ["tampermonkey"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -24,7 +24,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.vue"]
+  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.vue"],
 }

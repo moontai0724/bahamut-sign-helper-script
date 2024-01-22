@@ -39,6 +39,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@rushstack/eslint-patch": "^1.7.0",
     "@types/node": "^20.11.5",
+    "@types/tampermonkey": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "@vitejs/plugin-vue": "^4.5.2",
