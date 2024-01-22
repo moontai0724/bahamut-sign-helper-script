@@ -18,7 +18,9 @@
       "https://*.gamer.com.tw/*"
     ],
     "grant": [
-      "GM_xmlhttpRequest"
+      "GM_xmlhttpRequest",
+      "GM_setValue",
+      "GM_getValue"
     ],
     "connect": [
       "api.gamer.com.tw"
