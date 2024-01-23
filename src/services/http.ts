@@ -19,7 +19,7 @@ export enum ContentType {
  *
  * @returns A promise that wrap resolves to the response.
  */
-async function request<Response = unknown>(
+export async function request<Response = unknown>(
   method: RequestMethod,
   url: string,
   options: Omit<
@@ -49,7 +49,7 @@ async function request<Response = unknown>(
  * @param url Target URL.
  * @param options Options for `GM_xmlhttpRequest`.
  */
-async function get<Response>(
+export async function get<Response>(
   url: string,
   options: Omit<
     Tampermonkey.Request,
@@ -65,7 +65,7 @@ async function get<Response>(
  * @param url Target URL.
  * @param options Options for `GM_xmlhttpRequest`.
  */
-async function post<Response>(
+export async function post<Response>(
   url: string,
   options: Omit<
     Tampermonkey.Request,
@@ -74,7 +74,3 @@ async function post<Response>(
 ): Promise<Response> {
   return request<Response>("POST", url, options);
 }
-
-const httpService = { get, post, request };
-
-export default httpService;

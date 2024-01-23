@@ -89,6 +89,7 @@ module.exports = {
     "import/newline-after-import": "error",
     "import/no-duplicates": "error",
     "import/no-unresolved": "error",
+    "import/prefer-default-export": "off",
 
     // additional rules
     "@typescript-eslint/consistent-type-exports": "error",

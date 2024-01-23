@@ -6,7 +6,7 @@
  * @param parentKey key of this item in the parent
  * @returns a recursive proxy option for the proxy object
  */
-function getOptions<
+export function getOptions<
   T extends Record<number | string | symbol, object>,
   K extends keyof T,
 >(parentTarget: T, parentKey: K): ProxyHandler<T[K]> {
@@ -57,7 +57,3 @@ function getOptions<
 
   return handler;
 }
-
-const recursiveProxyUtil = { getOptions };
-
-export default recursiveProxyUtil;

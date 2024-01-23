@@ -26,7 +26,7 @@ function generateRandomHex(length = 16): string {
  *
  * @returns The CSRF token from cookie or a random 16-digit hexadecimal string
  */
-function getCSRFToken() {
+export function getCSRFToken() {
   const existing = document.cookie
     .split(";")
     .find(value => value.trim().startsWith("ckBahamutCsrfToken"));
@@ -38,7 +38,3 @@ function getCSRFToken() {
 
   return value;
 }
-
-const csrfTokenService = { getCSRFToken };
-
-export default csrfTokenService;

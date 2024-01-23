@@ -1,4 +1,4 @@
-function getFullScreenIframe(html: string): HTMLIFrameElement {
+export function getFullScreenIframe(html: string): HTMLIFrameElement {
   const iframe = document.createElement("iframe");
 
   iframe.srcdoc = html;
@@ -13,12 +13,10 @@ function getFullScreenIframe(html: string): HTMLIFrameElement {
   return iframe;
 }
 
-function loadFullScreenIframe(html: string): HTMLIFrameElement {
+export function loadFullScreenIframe(html: string): HTMLIFrameElement {
   const iframe = getFullScreenIframe(html);
 
   document.body.appendChild(iframe);
 
   return iframe;
 }
-
-export default { getFullScreenIframe, loadFullScreenIframe };

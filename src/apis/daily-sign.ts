@@ -1,5 +1,5 @@
-import CSRFTokenService from "services/csrf-token";
-import httpService, { HeaderOption } from "services/http";
+import { CsrfTokenService, HttpService } from "services";
+import { HeaderOption } from "services/http";
 
 export interface ApiDailySignCheckResult {
   btnMessage: string;
@@ -19,13 +19,13 @@ export interface ApiDailySignCheckResult {
  * This is the api that the current landing page uses.
  */
 async function check(): Promise<ApiDailySignCheckResult> {
-  const token = CSRFTokenService.getCSRFToken();
+  const token = CsrfTokenService.getCSRFToken();
 
   const params = new FormData();
 
   params.append("action", "2");
 
-  const response = await httpService.post<{ data: ApiDailySignCheckResult }>(
+  const response = await HttpService.post<{ data: ApiDailySignCheckResult }>(
     "https://api.gamer.com.tw/user/v1/signin.php",
     {
       anonymous: false,
@@ -64,13 +64,13 @@ interface ApiSignResult {
   }
  */
 async function sign(): Promise<ApiSignResult> {
-  const token = CSRFTokenService.getCSRFToken();
+  const token = CsrfTokenService.getCSRFToken();
 
   const params = new FormData();
 
   params.append("action", "1");
 
-  const response = await httpService.post<{ data: ApiSignResult }>(
+  const response = await HttpService.post<{ data: ApiSignResult }>(
     "https://api.gamer.com.tw/user/v1/signin.php",
     {
       anonymous: false,

@@ -1,4 +1,4 @@
-import recursiveProxyUtil from "../utils/recursive-proxy";
+import { RecursiveProxyUtil } from "utils";
 
 /**
  * Defines the environment variables here. The key of first level object will be
@@ -20,7 +20,7 @@ const environmentVariables = {
  * script storage. The value will be the default value if the value is not set
  * in the script storage.
  */
-const environment = new Proxy(
+const variables = new Proxy(
   environmentVariables as Record<number | string | symbol, unknown>,
   {
     get(target, key) {
@@ -29,8 +29,8 @@ const environment = new Proxy(
       if (typeof value === "object" && value !== null) {
         return new Proxy(
           value,
-          recursiveProxyUtil.getOptions(
-            environment as unknown as Record<number | string | symbol, object>,
+          RecursiveProxyUtil.getOptions(
+            variables as unknown as Record<number | string | symbol, object>,
             key,
           ),
         );
@@ -46,4 +46,4 @@ const environment = new Proxy(
   },
 ) as typeof environmentVariables;
 
-export default environment;
+export default variables;
