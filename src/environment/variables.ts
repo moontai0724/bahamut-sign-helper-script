@@ -1,5 +1,18 @@
 import { RecursiveProxyUtil } from "utils";
 
+export interface AccountSignRecord {
+  /**
+   * Whether the account has signed daily sign today.
+   */
+  dailySigned?: boolean;
+  /**
+   * The date of the last sign.
+   *
+   * @example "2024/03/09"
+   */
+  updatedAt?: string;
+}
+
 /**
  * Defines the environment variables here. The key of first level object will be
  * the identifier that stored into the script storage, and the value will be the
@@ -13,6 +26,7 @@ const environmentVariables = {
      */
     dailySign: true,
   },
+  record: {} as Record<string, AccountSignRecord>,
 };
 
 /**

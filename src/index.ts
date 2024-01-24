@@ -1,4 +1,3 @@
-import index from "@views/app/index.html";
-import htmlLoader from "utils/html-loader";
+import initDailySign from "controllers/daily-sign";
 
-htmlLoader.loadFullScreenIframe(index);
+initDailySign();

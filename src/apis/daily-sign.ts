@@ -2,23 +2,37 @@ import { CsrfTokenService, HttpService } from "services";
 import { HeaderOption } from "services/http";
 
 export interface ApiDailySignCheckResult {
+  /**
+   * The message that shows on the button in the landing page.
+   *
+   * @example <i class="material-icons">check_box</i>每日簽到已達成
+   */
   btnMessage: string;
   // eslint-disable-next-line @typescript-eslint/naming-convention
   close_auto: number;
+  /**
+   * Continuous signed in days
+   */
   days: number;
   dialogInfo: string[];
   finishedAd: number;
   // eslint-disable-next-line @typescript-eslint/naming-convention
   open_auto_ani: number;
   prjSigninDays: number;
+  /**
+   * Signed in or not? 1 for signed in, 0 for not signed in.
+   */
   signin: number;
+  /**
+   * Total weeks of continuous signed in days.
+   */
   totalWeeks: number;
 }
 
 /**
  * This is the api that the current landing page uses.
  */
-async function check(): Promise<ApiDailySignCheckResult> {
+export async function check(): Promise<ApiDailySignCheckResult> {
   const token = CsrfTokenService.getCSRFToken();
 
   const params = new FormData();
@@ -44,11 +58,22 @@ async function check(): Promise<ApiDailySignCheckResult> {
 }
 
 interface ApiSignResult {
+  /**
+   * The message that shows on the button in the landing page.
+   *
+   * @example <i class="material-icons">check_box</i>每日簽到已達成
+   */
   btnMessage: string;
+  /**
+   * Continuous signed in days
+   */
   days: number;
   dialog: string;
   dialogInfo: [];
   prjSigninDays: number;
+  /**
+   * Total weeks of continuous signed in days.
+   */
   totalWeeks: number;
 }
 
@@ -63,7 +88,7 @@ interface ApiSignResult {
     "dialogInfo": []
   }
  */
-async function sign(): Promise<ApiSignResult> {
+export async function sign(): Promise<ApiSignResult> {
   const token = CsrfTokenService.getCSRFToken();
 
   const params = new FormData();
@@ -87,7 +112,3 @@ async function sign(): Promise<ApiSignResult> {
 
   return response.data;
 }
-
-const dailySignApi = { check, sign };
-
-export default dailySignApi;
