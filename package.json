@@ -24,7 +24,8 @@
     ],
     "connect": [
       "api.gamer.com.tw"
-    ]
+    ],
+    "noframes": ""
   },
   "type": "module",
   "scripts": {
