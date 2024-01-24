@@ -1,6 +1,7 @@
 import { DailySignApi } from "apis";
 import { constants, variables } from "environment";
 import { type AccountSignRecord } from "environment/variables";
+import { LoggerUtil } from "utils";
 
 function getRecordCache(): AccountSignRecord {
   const record = variables.record[constants.BAHAID];
@@ -47,13 +48,13 @@ async function sign() {
 
 export default async function initDailySign() {
   if (!variables.enable.dailySign) {
-    console.info("Daily sign feature is disabled.");
+    LoggerUtil.info("Daily sign feature is disabled.");
 
     return;
   }
 
   if (await isTodaySigned()) {
-    console.info("Daily sign is already performed.");
+    LoggerUtil.info("Daily sign is already performed.");
 
     return;
   }
@@ -61,8 +62,11 @@ export default async function initDailySign() {
   try {
     const signResult = await sign();
 
-    console.info("Successfully performed daily sign!", signResult);
+    LoggerUtil.info("Successfully performed daily sign!", signResult);
   } catch (error) {
-    console.error("Encountered an error while performing daily sign:", error);
+    LoggerUtil.error(
+      "Encountered an error while performing daily sign:",
+      error,
+    );
   }
 }
