@@ -1,5 +1,7 @@
 import { RecursiveProxyUtil } from "utils";
 
+import { BAHAID, TODAY } from "./constants";
+
 export interface AccountSignRecord {
   /**
    * Whether the account has signed daily sign today.
@@ -10,7 +12,7 @@ export interface AccountSignRecord {
    *
    * @example "2024/03/09"
    */
-  updatedAt?: string;
+  updatedAt: string;
 }
 
 /**
@@ -34,7 +36,7 @@ const environmentVariables = {
  * script storage. The value will be the default value if the value is not set
  * in the script storage.
  */
-const variables = new Proxy(
+export const values = new Proxy(
   environmentVariables as Record<number | string | symbol, unknown>,
   {
     get(target, key) {
@@ -44,7 +46,7 @@ const variables = new Proxy(
         return new Proxy(
           value,
           RecursiveProxyUtil.getOptions(
-            variables as unknown as Record<number | string | symbol, object>,
+            values as unknown as Record<number | string | symbol, object>,
             key,
           ),
         );
@@ -60,4 +62,23 @@ const variables = new Proxy(
   },
 ) as typeof environmentVariables;
 
-export default variables;
+export function getRecord(): AccountSignRecord {
+  const record = values.record[BAHAID];
+  const defaultValue = {
+    updatedAt: TODAY.full,
+  };
+
+  if (!record) {
+    values.record[BAHAID] = defaultValue;
+
+    return values.record[BAHAID];
+  }
+
+  if (record.updatedAt !== TODAY.full) {
+    values.record[BAHAID] = defaultValue;
+
+    return values.record[BAHAID];
+  }
+
+  return record;
+}

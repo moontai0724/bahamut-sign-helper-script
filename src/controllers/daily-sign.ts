@@ -1,30 +1,18 @@
 import { DailySignApi } from "apis";
-import { constants, variables } from "environment";
+import { variables } from "environment";
 import { type AccountSignRecord } from "environment/variables";
 import { LoggerUtil } from "utils";
 
-function getRecordCache(): AccountSignRecord {
-  const record = variables.record[constants.BAHAID];
-
-  if (!record) return {};
-  if (record.updatedAt !== constants.TODAY.full) return {};
-
-  return record;
-}
-
-function setSignStatus(status: boolean): AccountSignRecord {
-  const existing: AccountSignRecord = getRecordCache();
+function setSignStatus(status: boolean) {
+  const existing: AccountSignRecord = variables.getRecord();
 
   existing.dailySigned = status;
-  existing.updatedAt = constants.TODAY.full;
-
-  variables.record[constants.BAHAID] = existing;
 
   return existing;
 }
 
 async function isTodaySigned(): Promise<boolean> {
-  const record = getRecordCache();
+  const record = variables.getRecord();
 
   if (!record.dailySigned) {
     const status = await DailySignApi.check();
@@ -47,7 +35,7 @@ async function sign() {
 }
 
 export default async function initDailySign() {
-  if (!variables.enable.dailySign) {
+  if (!variables.values.enable.dailySign) {
     LoggerUtil.info("Daily sign feature is disabled.");
 
     return;
