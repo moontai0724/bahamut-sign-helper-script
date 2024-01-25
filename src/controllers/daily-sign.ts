@@ -35,19 +35,19 @@ async function sign() {
 }
 
 export default async function initDailySign() {
-  if (!variables.values.enable.dailySign) {
-    LoggerUtil.info("Daily sign feature is disabled.");
-
-    return;
-  }
-
-  if (await isTodaySigned()) {
-    LoggerUtil.info("Daily sign is already performed.");
-
-    return;
-  }
-
   try {
+    if (!variables.values.enable.dailySign) {
+      LoggerUtil.info("Daily sign feature is disabled.");
+
+      return;
+    }
+
+    if (await isTodaySigned()) {
+      LoggerUtil.info("Daily sign is already performed.");
+
+      return;
+    }
+
     const signResult = await sign();
 
     LoggerUtil.info("Successfully performed daily sign!", signResult);
