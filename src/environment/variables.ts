@@ -8,6 +8,10 @@ export interface AccountSignRecord {
    */
   dailySigned?: boolean;
   /**
+   * The guilds that the account has signed today.
+   */
+  signedGuilds?: number[];
+  /**
    * The date of the last sign.
    *
    * @example "2024/03/09"
@@ -27,6 +31,11 @@ const environmentVariables = {
      * @default true
      */
     dailySign: true,
+    /**
+     * Whether to enable the guild sign feature.
+     * @default true
+     */
+    guildSign: true,
   },
   record: {} as Record<string, AccountSignRecord>,
 };

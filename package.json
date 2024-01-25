@@ -23,7 +23,8 @@
       "GM_getValue"
     ],
     "connect": [
-      "api.gamer.com.tw"
+      "api.gamer.com.tw",
+      "guild.gamer.com.tw"
     ],
     "noframes": ""
   },
