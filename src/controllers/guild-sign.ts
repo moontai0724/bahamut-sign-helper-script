@@ -9,15 +9,15 @@ async function getMyGuildIds() {
   return ids;
 }
 
-async function isTodaySigned(id: number): Promise<boolean> {
+function isNotSignedYet(id: number) {
   const record = variables.getRecord();
 
-  return !!record.signedGuilds?.includes(id);
+  return !record.signedGuilds?.includes(id);
 }
 
 async function getUnsignedGuildIds() {
   const ids = await getMyGuildIds();
-  const unsignedIds = ids.filter(id => !isTodaySigned(id));
+  const unsignedIds = ids.filter(isNotSignedYet);
 
   return unsignedIds;
 }
@@ -34,7 +34,7 @@ async function setSigned(id: number) {
 }
 
 async function sign(id: number) {
-  if (await isTodaySigned(id)) {
+  if (!isNotSignedYet(id)) {
     throw new Error(`Guild ${id} is already signed today.`);
   }
 
