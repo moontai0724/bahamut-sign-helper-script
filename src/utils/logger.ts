@@ -1,8 +1,6 @@
-import { name } from "../../package.json";
-
 const { info: originalInfo, error: originalError, ...remains } = console;
 
-const prefix = `[${name}]`;
+const prefix = `[bahamut-sign-helper-script]`;
 
 export function info(...params: Parameters<typeof originalInfo>) {
   return originalInfo(prefix, ...params);
