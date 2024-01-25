@@ -69,12 +69,7 @@ interface ApiErrorResult {
   msg: string;
 }
 
-interface ApiSignResult {
-  data: {
-    message: "本日簽到成功！獲得 5 貢獻度";
-    statusCode: true;
-  };
-}
+interface ApiSignResult {}
 
 export async function sign(id: string | number) {
   const uri = "https://guild.gamer.com.tw/ajax/guildSign.php";

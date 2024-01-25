@@ -77,13 +77,7 @@ export function getRecord(): AccountSignRecord {
     updatedAt: TODAY.full,
   };
 
-  if (!record) {
-    values.record[BAHAID] = defaultValue;
-
-    return values.record[BAHAID];
-  }
-
-  if (record.updatedAt !== TODAY.full) {
+  if (!record || record.updatedAt !== TODAY.full) {
     values.record[BAHAID] = defaultValue;
 
     return values.record[BAHAID];
