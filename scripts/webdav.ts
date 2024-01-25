@@ -219,10 +219,13 @@ function getMetaContent() {
   return JSON.stringify(content);
 }
 
+const now = new Date();
+
 function getActualFileContent() {
   const content = fs.readFileSync(ACTUAL_FILE_PATH);
+  const appendContent = `\n\nconsole.log("Developing UserScript Downloaded At: ${now.getTime()} (${now.toLocaleString()})");`;
 
-  return content;
+  return content + appendContent;
 }
 
 /**
