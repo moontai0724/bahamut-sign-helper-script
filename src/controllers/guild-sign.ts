@@ -1,9 +1,9 @@
-import { GuildSignApi } from "apis";
+import { GuildApi } from "apis";
 import { variables } from "environment";
 import { LoggerUtil } from "utils";
 
 async function getMyGuildIds() {
-  const infos = await GuildSignApi.getMyGuilds();
+  const infos = await GuildApi.Info.getMyGuilds();
   const ids = infos.map(info => info.sn);
 
   return ids;
@@ -38,7 +38,7 @@ async function sign(id: number) {
     throw new Error(`Guild ${id} is already signed today.`);
   }
 
-  const signResult = await GuildSignApi.sign(id).catch(error => {
+  const signResult = await GuildApi.Sign.sign(id).catch(error => {
     if (error.msg === "您今天已經簽到過了！") {
       return Promise.resolve();
     }

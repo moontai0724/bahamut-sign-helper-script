@@ -1,2 +1,2 @@
 export * as DailySignApi from "./daily-sign";
-export * as GuildSignApi from "./guild-sign";
+export * as GuildApi from "./guild";
