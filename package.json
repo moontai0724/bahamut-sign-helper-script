@@ -24,7 +24,9 @@
     ],
     "connect": [
       "api.gamer.com.tw",
-      "guild.gamer.com.tw"
+      "guild.gamer.com.tw",
+      "script.google.com",
+      "script.googleusercontent.com"
     ],
     "noframes": ""
   },
