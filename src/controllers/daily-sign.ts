@@ -34,7 +34,7 @@ async function sign() {
   return signResult;
 }
 
-export default async function initDailySign() {
+export async function init() {
   try {
     if (!variables.values.enable.dailySign) {
       LoggerUtil.info("Daily sign feature is disabled.");

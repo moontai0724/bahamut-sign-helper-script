@@ -51,7 +51,7 @@ async function sign(id: number) {
   return signResult;
 }
 
-export default async function initGuildSign() {
+export async function init() {
   try {
     const ids = await getUnsignedGuildIds();
 

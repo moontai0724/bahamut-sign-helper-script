@@ -1,5 +1,4 @@
-import initDailySign from "controllers/daily-sign";
-import initGuildSign from "controllers/guild-sign";
+import { DailySignController, GuildSignController } from "./controllers";
 
-initDailySign();
-initGuildSign();
+DailySignController.init();
+GuildSignController.init();
