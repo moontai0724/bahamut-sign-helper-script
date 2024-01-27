@@ -4,6 +4,10 @@ import { BAHAID, TODAY } from "./constants";
 
 export interface AccountSignRecord {
   /**
+   * Whether the account has answered the quiz today.
+   */
+  animadQuizAnswered?: boolean;
+  /**
    * Whether the account has signed daily sign today.
    */
   dailySigned?: boolean;
@@ -25,7 +29,43 @@ export interface AccountSignRecord {
  * default value if the value is not set before.
  */
 const environmentVariables = {
+  config: {
+    animad: {
+      quiz: {
+        /**
+         * Whether to answer the quiz automatically.
+         * @default true
+         */
+        autoAnswer: true,
+        /**
+         * The grace time of the quiz, calculated in milliseconds from the
+         * start of the day. The manual answer will not be triggered
+         * if the time is not reached.
+         */
+        graceTime: 0,
+        /**
+         * Whether to use the source of the quiz.
+         */
+        source: {
+          /**
+           * Fetch answer from unofficial gamer quiz collection.
+           * Since this approach is not stable, and is slow, this is only
+           * be used as a fallback.
+           *
+           * @see https://home.gamer.com.tw/creationDetail.php?sn=3924920
+           *
+           * @default true
+           */
+          collection: true,
+        },
+      },
+    },
+  },
   enable: {
+    /**
+     * Whether to enable the answer animad quiz feature.
+     */
+    animadQuiz: true,
     /**
      * Whether to enable the daily sign feature.
      * @default true
