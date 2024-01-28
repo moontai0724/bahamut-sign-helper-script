@@ -1,4 +1,3 @@
-import { constants } from "environment";
 import { HttpService } from "services";
 
 interface ErrorResponse {
@@ -80,18 +79,15 @@ interface QuizAnswerResult {}
  * the token manually instead.
  * @throws {ErrorResponse} When there are error message from api.
  */
-export async function submitAnswer(
-  answer: number,
-  token: string | undefined = quiz?.token,
-) {
-  if (!token) throw new Error("Token is not provided.");
+export async function submitAnswer(answer: number) {
+  const token = quiz?.token || (await getQuiz()).token;
 
-  const uri = "https://ani.gamer.com.tw/ajax/animeSubmitQuestion.php";
-  const params = new FormData();
+  const uri = "https://ani.gamer.com.tw/ajax/animeAnsQuestion.php";
+  const params = new URLSearchParams();
 
-  params.append("answer", answer.toString());
+  params.append("ans", answer.toString());
   params.append("token", token);
-  params.append("userid", constants.BAHAID);
+  params.append("t", Date.now().toString());
 
   const response = await HttpService.post<QuizAnswerResult | ErrorResponse>(
     uri,
