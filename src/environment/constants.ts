@@ -10,10 +10,10 @@ export const TODAY = (() => {
 
   return {
     /**
-     * The date of today.
+     * The day of today.
      * @example 9
      */
-    date: parseInt(currentDate, 10),
+    day: parseInt(currentDate, 10),
     /**
      * The full date of today.
      * @example "2024/03/09"

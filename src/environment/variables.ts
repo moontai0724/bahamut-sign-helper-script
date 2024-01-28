@@ -48,6 +48,13 @@ const environmentVariables = {
          */
         source: {
           /**
+           * Fetch answer from daily post of user `blackxblue`.
+           * @see https://home.gamer.com.tw/blackxblue
+           *
+           * @default true
+           */
+          blackxblue: true,
+          /**
            * Fetch answer from unofficial gamer quiz collection.
            * Since this approach is not stable, and is slow, this is only
            * be used as a fallback.
