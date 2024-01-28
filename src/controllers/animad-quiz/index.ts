@@ -27,6 +27,7 @@ async function performManualAnswer() {
   return ManualAnswer.init();
 }
 
+// 動畫瘋答題感謝 maple3142/動畫瘋工具箱 支援：https://greasyfork.org/zh-TW/scripts/39136
 export async function init() {
   try {
     if (!variables.values.enable.animadQuiz) {
@@ -35,14 +36,14 @@ export async function init() {
       return;
     }
 
-    if (isTodayAnswered()) {
+    if (await isTodayAnswered()) {
       LoggerUtil.info("Animad quiz is already answered.");
 
       return;
     }
 
     try {
-      const result = performAutoAnswer();
+      const result = await performAutoAnswer();
 
       LoggerUtil.info("Successfully auto answered the animad quiz.", result);
     } catch {
@@ -58,7 +59,7 @@ export async function init() {
         return;
       }
 
-      performManualAnswer();
+      await performManualAnswer();
     }
   } catch (error) {
     LoggerUtil.error(

@@ -9,23 +9,30 @@ export function setAnswerStatus(status: boolean) {
   return existing;
 }
 
-export function isTodayAnswered(): boolean {
+export async function isTodayAnswered() {
   const record = variables.getRecord();
   const answered = !!record.animadQuizAnswered;
 
   if (answered) return true;
 
   try {
-    AnimadApi.Quiz.getQuiz();
+    await AnimadApi.Quiz.getQuiz();
   } catch {
+    setAnswerStatus(true);
+
     return true;
   }
 
   return false;
 }
 
-export function submitAnswer(answer: number) {
-  const result = AnimadApi.Quiz.submitAnswer(answer);
+export async function submitAnswer(answer: number) {
+  const result = await AnimadApi.Quiz.submitAnswer(answer).catch(error => {
+    if (error.msg === "答題錯誤") return error;
+    if (error.msg === "今日已經答過題目了，一天僅限一次機會") return error;
+
+    throw error;
+  });
 
   setAnswerStatus(true);
 
