@@ -14,22 +14,22 @@ export interface QuizContent {
    * Answer 1
    * @example "白色與黑色。"
    */
-  a1: "白色與黑色。";
+  a1: string;
   /**
    * Answer 2
    * @example "紫色與藍色。"
    */
-  a2: "紫色與藍色。";
+  a2: string;
   /**
    * Answer 3
    * @example "藍色與白色。"
    */
-  a3: "藍色與白色。";
+  a3: string;
   /**
    * Answer 4
    * @example "紅色與紫色。"
    */
-  a4: "紅色與紫色。";
+  a4: string;
   /**
    * Related game/board
    * @example "虛擬 Youtuber（Vtuber）"
