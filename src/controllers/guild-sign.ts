@@ -40,7 +40,7 @@ async function sign(id: number) {
 
   const signResult = await GuildApi.Sign.sign(id).catch(error => {
     if (error.msg === "您今天已經簽到過了！") {
-      return Promise.resolve();
+      return Promise.resolve(error);
     }
 
     return Promise.reject(error);
