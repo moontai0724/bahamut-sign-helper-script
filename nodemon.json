@@ -9,8 +9,7 @@
   ],
   "signal": "SIGHUP",
   "watch": [
-    "src/",
-    "views/"
+    "src/"
   ],
   "delay": 2500
 }

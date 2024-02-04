@@ -8,16 +8,16 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@views/*": ["../views/dist/pages/*"],
+      "@pages/*": ["../../dist/pages/*"],
     },
     "types": ["tampermonkey"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "noEmit": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "preserve",
 
     /* Linting */

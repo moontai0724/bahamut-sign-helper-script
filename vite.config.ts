@@ -5,15 +5,17 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
-const alias = readdirSync(resolve(__dirname, "views")).reduce((acc, value) => {
-  acc[value] = resolve(__dirname, `views/${value}`);
+const root = "src/views";
+
+const alias = readdirSync(resolve(__dirname, root)).reduce((acc, value) => {
+  acc[value] = resolve(__dirname, `${root}/${value}`);
 
   return acc;
 }, {});
 
-const pages = readdirSync(resolve(__dirname, "views/pages")).reduce(
+const pages = readdirSync(resolve(__dirname, `${root}/pages`)).reduce(
   (acc, name) => {
-    acc[name] = resolve(__dirname, `views/pages/${name}/index.html`);
+    acc[name] = resolve(__dirname, `${root}/pages/${name}/index.html`);
 
     return acc;
   },
@@ -23,6 +25,7 @@ const pages = readdirSync(resolve(__dirname, "views/pages")).reduce(
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
+    outDir: resolve(__dirname, "dist"),
     rollupOptions: {
       input: pages,
     },
@@ -31,12 +34,12 @@ export default defineConfig({
     vue(),
     viteSingleFile({ removeViteModuleLoader: true }),
     typescript({
-      tsconfig: "views/tsconfig.json",
+      tsconfig: `${root}/tsconfig.json`,
     }),
   ],
   publicDir: false,
   resolve: {
     alias,
   },
-  root: "views",
+  root,
 });

@@ -4,8 +4,10 @@ import { resolve } from "path";
 import html from "rollup-plugin-html";
 import license from "rollup-plugin-license";
 
+const root = "src/app";
+
 export default {
-  input: "src/index.ts",
+  input: `${root}/index.ts`,
   output: {
     file: "dist/bundle.user.js",
     format: "umd",
@@ -14,11 +16,11 @@ export default {
   plugins: [
     alias({
       entries: [
-        { find: "@views", replacement: resolve(__dirname, "views/dist/pages") },
+        { find: "@pages", replacement: resolve(__dirname, "dist/pages") },
       ],
     }),
     typescript({
-      tsconfig: "src/tsconfig.json",
+      tsconfig: `${root}/tsconfig.json`,
     }),
     html({
       htmlMinifierOptions: {

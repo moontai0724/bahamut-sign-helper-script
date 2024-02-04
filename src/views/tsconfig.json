@@ -11,10 +11,10 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "noEmit": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "preserve",
 
     /* Linting */
