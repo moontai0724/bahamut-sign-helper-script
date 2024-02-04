@@ -1,3 +1,4 @@
+import typescript from "@rollup/plugin-typescript";
 import vue from "@vitejs/plugin-vue";
 import { readdirSync } from "fs";
 import { resolve } from "path";
@@ -26,7 +27,13 @@ export default defineConfig({
       input: pages,
     },
   },
-  plugins: [vue(), viteSingleFile({ removeViteModuleLoader: true })],
+  plugins: [
+    vue(),
+    viteSingleFile({ removeViteModuleLoader: true }),
+    typescript({
+      tsconfig: "views/tsconfig.json",
+    }),
+  ],
   publicDir: false,
   resolve: {
     alias,
