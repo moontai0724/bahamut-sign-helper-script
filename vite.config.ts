@@ -7,11 +7,16 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 const root = "src/views";
 
-const alias = readdirSync(resolve(__dirname, root)).reduce((acc, value) => {
-  acc[value] = resolve(__dirname, `${root}/${value}`);
+const alias = readdirSync(resolve(__dirname, root)).reduce(
+  (acc, value) => {
+    acc[value] = resolve(__dirname, `${root}/${value}`);
 
-  return acc;
-}, {});
+    return acc;
+  },
+  {
+    "@common": resolve(__dirname, "src/common"),
+  },
+);
 
 const pages = readdirSync(resolve(__dirname, `${root}/pages`)).reduce(
   (acc, name) => {

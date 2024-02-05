@@ -28,6 +28,7 @@ module.exports = {
     project: [
       "./tsconfig.json",
       "./src/app/tsconfig.json",
+      "./src/common/tsconfig.json",
       "./src/views/tsconfig.json",
     ],
   },
@@ -147,6 +148,7 @@ module.exports = {
         project: [
           "./tsconfig.json",
           "./src/app/tsconfig.json",
+          "./src/common/tsconfig.json",
           "./src/views/tsconfig.json",
         ],
       },

@@ -37,7 +37,7 @@
     "dev": "nodemon scripts/webdav.ts",
     "preview": "concurrently --kill-others \"http-server dist/pages -p 8080\" \"vite build -w\"",
     "build": "pnpm build:view && pnpm build:script",
-    "build:view": "vue-tsc -p src/views && vite build",
+    "build:view": "vite build",
     "build:script": "rollup -c --configPlugin typescript --bundleConfigAsCjs",
     "lint": "pnpm lint:eslint && pnpm lint:prettier",
     "lint:eslint": "eslint .",

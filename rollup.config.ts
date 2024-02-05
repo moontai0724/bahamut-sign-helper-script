@@ -17,6 +17,7 @@ export default {
     alias({
       entries: [
         { find: "@pages", replacement: resolve(__dirname, "dist/pages") },
+        { find: "@common", replacement: resolve(__dirname, "src/common") },
       ],
     }),
     typescript({
