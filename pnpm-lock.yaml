@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  primevue:
+    specifier: ^3.47.2
+    version: 3.47.2(vue@3.4.14)
   vue:
     specifier: ^3.3.11
     version: 3.4.14(typescript@5.3.3)
@@ -3893,6 +3896,14 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     dev: true
+
+  /primevue@3.47.2(vue@3.4.14):
+    resolution: {integrity: sha512-/vgIhc2vxNW8amBGBJX/NMBgWi/THOwT0DIPgy/aswJ86x+uwLwGtjNz22c/uSE5UkHu4E5rpktWOJtFvTbRPg==}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      vue: 3.4.14(typescript@5.3.3)
+    dev: false
 
   /prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}

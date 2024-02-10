@@ -1,17 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-Hant-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Vue + TS</title>
+    <title>Animad Manual Answer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/primeflex/3.3.1/primeflex.min.css"
+      integrity="sha512-lgW20MsPeg254Pqm/Wfu3UrS0b5z5VoLcfgYthMePeoCUR8hgiswV9FllOYd3YZvckbjz+jnfiAMnXjSQmeB5w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/primevue/3.47.2/resources/themes/aura-dark-green/theme.min.css"
+      integrity="sha512-YpPme+6nuQ6p6Wb33sPJE6PnDuPi4VhLoYtxHigx7b4hID0Pd7JRsDY6txemd+14deGc/LId+I4rpyQ3FdfBfg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      :root {
+        color-scheme: none;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>
     <script type="module">
       import { createApp } from "vue";
+      import PrimeVue from "primevue/config";
+      import Tooltip from "primevue/tooltip";
       import App from "./index.vue";
 
-      createApp(App).mount("#app");
+      const app = createApp(App);
+      app.use(PrimeVue);
+      app.directive("tooltip", Tooltip);
+      app.mount("#app");
     </script>
   </body>
 </html>

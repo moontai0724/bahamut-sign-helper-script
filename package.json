@@ -45,6 +45,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "primevue": "^3.47.2",
     "vue": "^3.3.11"
   },
   "devDependencies": {
