@@ -1,12 +1,12 @@
+import { Logger } from "@common/index";
 import { AnimadApi, QuizCollectionApi } from "apis";
 import { variables } from "environment";
-import { LoggerUtil } from "utils";
 
 export async function fromCollection() {
   if (!variables.values.config.animad.quiz.source.collection) {
     const message = "The quiz collection answer source is disabled.";
 
-    LoggerUtil.info(message);
+    Logger.info(message);
 
     throw new Error(message);
   }

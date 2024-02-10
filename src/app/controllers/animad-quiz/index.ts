@@ -1,5 +1,5 @@
+import { Logger } from "@common/index";
 import { constants, variables } from "environment";
-import { LoggerUtil } from "utils";
 
 import * as AnswerSource from "./answer-source";
 import { isTodayAnswered, submitAnswer } from "./helpers";
@@ -31,13 +31,13 @@ async function performManualAnswer() {
 export async function init() {
   try {
     if (!variables.values.enable.animadQuiz) {
-      LoggerUtil.info("Animad quiz feature is disabled.");
+      Logger.info("Animad quiz feature is disabled.");
 
       return;
     }
 
     if (await isTodayAnswered()) {
-      LoggerUtil.info("Animad quiz is already answered.");
+      Logger.info("Animad quiz is already answered.");
 
       return;
     }
@@ -45,14 +45,14 @@ export async function init() {
     try {
       const result = await performAutoAnswer();
 
-      LoggerUtil.info("Successfully auto answered the animad quiz.", result);
+      Logger.info("Successfully auto answered the animad quiz.", result);
     } catch {
-      LoggerUtil.info(
+      Logger.info(
         "Failed to auto answer the animad quiz, fallback to manual answer.",
       );
 
       if (!graceTimePassed()) {
-        LoggerUtil.info(
+        Logger.info(
           "Grace time is not passed, aborting manual answer for animad quiz.",
         );
 
@@ -62,9 +62,6 @@ export async function init() {
       await performManualAnswer();
     }
   } catch (error) {
-    LoggerUtil.error(
-      "Encountered an error while performing animad quiz:",
-      error,
-    );
+    Logger.error("Encountered an error while performing animad quiz:", error);
   }
 }

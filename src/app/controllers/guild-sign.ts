@@ -1,6 +1,6 @@
+import { Logger } from "@common/index";
 import { GuildApi } from "apis";
 import { variables } from "environment";
-import { LoggerUtil } from "utils";
 
 async function getMyGuildIds() {
   const infos = await GuildApi.Info.getMyGuilds();
@@ -56,17 +56,14 @@ export async function init() {
     const ids = await getUnsignedGuildIds();
 
     if (!ids.length) {
-      LoggerUtil.info("All guild sign is already performed.");
+      Logger.info("All guild sign is already performed.");
 
       return;
     }
     const results = await Promise.allSettled(ids.map(sign));
 
-    LoggerUtil.info("Successfully performed guild sign!", results);
+    Logger.info("Successfully performed guild sign!", results);
   } catch (error) {
-    LoggerUtil.error(
-      "Encountered an error while performing guild sign:",
-      error,
-    );
+    Logger.error("Encountered an error while performing guild sign:", error);
   }
 }

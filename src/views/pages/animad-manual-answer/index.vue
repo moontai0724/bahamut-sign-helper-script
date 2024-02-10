@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScriptMessage } from "@common/index";
+import { Logger, ScriptMessage } from "@common/index";
 import { ScriptEvent } from "@common/script-message";
 import { type QuizContent } from "@common/types/animad";
 import Dialog from "primevue/dialog";
@@ -20,7 +20,7 @@ const question = ref<QuizContent>();
 
 onMounted(() => {
   ScriptMessage.on(ScriptEvent.SystemInit, event => {
-    console.log("View received initialize content", event.data.content);
+    Logger.log("View received initialize content", event.data.content);
     question.value = event.data.content.question;
   });
 
