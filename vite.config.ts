@@ -30,6 +30,7 @@ const pages = readdirSync(resolve(__dirname, `${root}/pages`)).reduce(
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
+    emptyOutDir: true,
     outDir: resolve(__dirname, "dist"),
     rollupOptions: {
       input: pages,
