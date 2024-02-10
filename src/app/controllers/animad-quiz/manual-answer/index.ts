@@ -11,6 +11,22 @@ function close() {
   Logger.info("Manual answer animad quiz closed.");
 }
 
+async function onUserAnswered(event: MessageEvent) {
+  Logger.info("User answered manual answer animad quiz.", event);
+  const answer = event.data.content;
+
+  const result = await AnimadApi.Quiz.submitAnswer(answer).catch(error => ({
+    gift: error.msg || error.message,
+    ok: 0,
+  }));
+
+  ScriptMessage.send(
+    ScriptEvent.SystemRepliedResult,
+    result.gift,
+    event.source as Window,
+  );
+}
+
 export async function init() {
   const quiz = await AnimadApi.Quiz.getQuiz();
 
@@ -24,7 +40,8 @@ export async function init() {
     );
   });
 
-  iframe = HtmlLoaderUtil.loadFullScreenIframe(html);
-
   ScriptMessage.on(ScriptEvent.UserClosed, close);
+  ScriptMessage.on(ScriptEvent.UserAnswered, onUserAnswered);
+
+  iframe = HtmlLoaderUtil.loadFullScreenIframe(html);
 }

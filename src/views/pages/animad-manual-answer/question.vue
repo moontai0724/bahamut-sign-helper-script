@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScriptEvent } from "@common/script-message";
 import type { QuizContent } from "@common/types/animad";
 import Button from "primevue/button";
 import Chip from "primevue/chip";
@@ -12,11 +11,11 @@ const options = computed(() => {
   return [question.a1, question.a2, question.a3, question.a4];
 });
 const emit = defineEmits<{
-  (e: ScriptEvent.UserAnswered, id: number): void;
+  (e: "answered", id: number): void;
 }>();
 
 function onAnswered(index: number) {
-  emit(ScriptEvent.UserAnswered, index + 1);
+  emit("answered", index + 1);
   loading.value = true;
 }
 </script>

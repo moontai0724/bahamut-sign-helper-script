@@ -38,3 +38,11 @@ export interface QuizContent {
    */
   userid: string;
 }
+
+export interface QuizAnswerResult {
+  /**
+   * @example "恭喜您得到：100 巴幣"
+   */
+  gift: string;
+  ok: 1;
+}

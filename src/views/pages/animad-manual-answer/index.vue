@@ -20,7 +20,7 @@ const question = ref<QuizContent>();
 
 onMounted(() => {
   ScriptMessage.on(ScriptEvent.SystemInit, event => {
-    Logger.log("View received initialize content", event.data.content);
+    Logger.info("View received initialize content", event.data.content);
     question.value = event.data.content.question;
   });
 
@@ -38,6 +38,12 @@ const answered = ref(false);
 const message = ref("Loading...");
 
 function onAnswered(id: number) {
+  ScriptMessage.on(ScriptEvent.SystemRepliedResult, event => {
+    Logger.info("View received result", event.data.content);
+    answered.value = true;
+    message.value = event.data.content;
+  });
+
   ScriptMessage.send(ScriptEvent.UserAnswered, id);
 }
 </script>

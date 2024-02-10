@@ -1,4 +1,4 @@
-import { type QuizContent } from "@common/types/animad";
+import type { QuizAnswerResult, QuizContent } from "@common/types/animad";
 import { HttpService } from "services";
 
 interface ErrorResponse {
@@ -30,8 +30,6 @@ export async function getQuiz() {
 
   return response;
 }
-
-interface QuizAnswerResult {}
 
 /**
  * Submit the answer of the quiz.

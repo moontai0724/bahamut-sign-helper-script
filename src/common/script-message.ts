@@ -2,6 +2,7 @@ import type { QuizContent } from "types/animad";
 
 export enum ScriptEvent {
   SystemInit = "system-init",
+  SystemRepliedResult = "system-replied-result",
   UserAnswered = "user-answered",
   UserClosed = "user-closed",
   ViewMounted = "view-mounted",
@@ -17,6 +18,11 @@ export interface OnUserAnswered
   content: number;
 }
 
+export interface OnSystemRepliedResult
+  extends ScriptMessage<ScriptEvent.SystemRepliedResult> {
+  content: string;
+}
+
 export interface OnUserClosed extends ScriptMessage<ScriptEvent.UserClosed> {}
 
 export interface OnViewMounted extends ScriptMessage<ScriptEvent.ViewMounted> {}
@@ -28,6 +34,7 @@ export interface OnSystemInit extends ScriptMessage<ScriptEvent.SystemInit> {
 
 export type ScriptMessageMap = {
   [ScriptEvent.UserAnswered]: OnUserAnswered;
+  [ScriptEvent.SystemRepliedResult]: OnSystemRepliedResult;
   [ScriptEvent.UserClosed]: OnUserClosed;
   [ScriptEvent.ViewMounted]: OnViewMounted;
   [ScriptEvent.SystemInit]: OnSystemInit;
@@ -36,14 +43,18 @@ export type ScriptMessageMap = {
 export function on<
   Event extends ScriptEvent,
   EventContext extends ScriptMessageMap[Event],
->(scriptEvent: Event, callback: (event: MessageEvent<EventContext>) => void) {
+>(
+  scriptEvent: Event,
+  callback: (event: MessageEvent<EventContext>) => void,
+  target: Window = window,
+) {
   const listener = (event: MessageEvent<EventContext>) => {
     if (event.data.scriptEvent !== scriptEvent) return;
 
     callback(event);
   };
 
-  window.addEventListener("message", listener);
+  target.addEventListener("message", listener);
 
   return listener;
 }
