@@ -46,10 +46,10 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          npx standard-version
+          npx commit-and-tag-version
 
       - name: Build
-        run: pnpm build
+        run: NODE_ENV=production pnpm build
 
       - name: Push updated version and tag
         uses: ad-m/github-push-action@master

@@ -8,7 +8,7 @@
   "include": [
     "vite.config.ts",
     "rollup.config.ts",
-    "scripts/webdav.ts",
+    "scripts/**/*.ts",
     "commitlint.config.cjs",
   ],
 }
