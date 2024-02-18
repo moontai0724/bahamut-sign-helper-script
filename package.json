@@ -18,6 +18,7 @@
       "https://*.gamer.com.tw/*"
     ],
     "grant": [
+      "GM_getResourceText",
       "GM_xmlhttpRequest",
       "GM_setValue",
       "GM_getValue"

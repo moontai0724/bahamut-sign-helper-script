@@ -44,7 +44,7 @@ function getExternalTransformMethod(options: PluginOptions) {
       return name;
     })();
 
-    const code = `export default ${resource};`;
+    const code = `export default GM_getResourceText("${resource}");`;
 
     // eslint-disable-next-line consistent-return
     return {
