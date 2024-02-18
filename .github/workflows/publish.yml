@@ -43,10 +43,12 @@ jobs:
         run: pnpm install
 
       - name: bump version
+        id: versioning
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           npx commit-and-tag-version
+          echo "version=$(node -p -e "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Build
         run: NODE_ENV=production pnpm build
@@ -65,3 +67,16 @@ jobs:
           BRANCH: release
           FOLDER: dist
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Prepare for Release
+        run: |
+          cd dist
+          zip -r ../release.zip .
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.versioning.outputs.version }}
+          files: |
+            dist/bundle.user.js
+            release.zip
