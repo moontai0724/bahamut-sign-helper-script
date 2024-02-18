@@ -2,6 +2,7 @@
 // @name            巴哈姆特簽到腳本（每日、公會、動畫瘋）
 // @namespace       https://home.gamer.com.tw/moontai0724
 // @match           https://*.gamer.com.tw/*
+// @grant           GM_getResourceText
 // @grant           GM_xmlhttpRequest
 // @grant           GM_setValue
 // @grant           GM_getValue
@@ -17,7 +18,7 @@
 // @author          moontai0724
 // @homepage        https://github.com/moontai0724/bahamut-sign-helper-script
 // @supportURL      https://github.com/moontai0724/bahamut-sign-helper-script/issues
-// @resource        resource_l6hhwk https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
+// @resource        resource_ydxhq7 https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
 // ==/UserScript==
 
 (function (factory) {
@@ -585,7 +586,7 @@
         return result;
     }
 
-    var html = resource_l6hhwk;
+    var html = GM_getResourceText("resource_ydxhq7");
 
     let iframe;
     function close() {
