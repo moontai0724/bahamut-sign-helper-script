@@ -5,11 +5,11 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
-const root = "src/views";
+const root = resolve(__dirname, "src/views");
 
-const alias = readdirSync(resolve(__dirname, root)).reduce(
+const alias = readdirSync(root).reduce(
   (acc, value) => {
-    acc[value] = resolve(__dirname, `${root}/${value}`);
+    acc[value] = resolve(root, value);
 
     return acc;
   },
@@ -18,23 +18,11 @@ const alias = readdirSync(resolve(__dirname, root)).reduce(
   },
 );
 
-const pages = readdirSync(resolve(__dirname, `${root}/pages`)).reduce(
-  (acc, name) => {
-    acc[name] = resolve(__dirname, `${root}/pages/${name}/index.html`);
-
-    return acc;
-  },
-  {},
-);
-
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
     emptyOutDir: true,
     outDir: resolve(__dirname, "dist"),
-    rollupOptions: {
-      input: pages,
-    },
   },
   plugins: [
     vue(),
