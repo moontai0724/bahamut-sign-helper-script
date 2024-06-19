@@ -19,6 +19,8 @@
 // @connect      script.googleusercontent.com
 // @supportURL   https://home.gamer.com.tw/creationDetail.php?sn=3852242
 // @noframes
+// @downloadURL  https://update.greasyfork.org/scripts/36964/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E8%87%AA%E5%8B%95%E7%B0%BD%E5%88%B0%EF%BC%88%E5%90%AB%E5%85%AC%E6%9C%83%E3%80%81%E5%8B%95%E7%95%AB%E7%98%8B%EF%BC%89.user.js
+// @updateURL    https://update.greasyfork.org/scripts/36964/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E8%87%AA%E5%8B%95%E7%B0%BD%E5%88%B0%EF%BC%88%E5%90%AB%E5%85%AC%E6%9C%83%E3%80%81%E5%8B%95%E7%95%AB%E7%98%8B%EF%BC%89.meta.js
 // ==/UserScript==
 
 (function () {
@@ -49,9 +51,9 @@
 
     // 答案來源是否採用非官方資料庫的資訊？
     // true 為是，false 為否。
-    // 
+    //
     // ***使用此種方法搜索答案，最高可能會到 30 秒，建議作為備案使用。***
-    // 
+    //
     // 若仍找不到答案，還是會跳手動作答視窗。
     // 詳細資料：https://home.gamer.com.tw/creationDetail.php?sn=3924920
     const ANSWER_SOURCE_DB = true;
@@ -325,21 +327,24 @@
         return new Promise(function (resolve, reject) {
             GM_xmlhttpRequest({
                 method: "GET",
-                url: "https://home.gamer.com.tw/creation.php?owner=blackxblue",
-                responseType: "text",
+                url: "https://api.gamer.com.tw/home/v2/creation_list.php?owner=blackxblue&row=1",
+                responseType: "json", // 巴哈小屋創作列表新的設計會以 json 方式取得資料
                 onload: function (page) {
-                    let result = jQuery(page.response)
-                        .find(".TS1")
-                        .filter((index, element) => new RegExp(`${MONTH.toString().padStart(2, '0')}/${DATE.toString().padStart(2, '0')}`).test(element.textContent));
-                    console.log("bas: ", "從 blackxblue 小屋找到今日動畫瘋文章 ID：", result, result[0].getAttribute("href"));
-                    if (result.length > 0) {
+                    if (page.status != 200 || //連線錯誤（網站掛掉、API失效等）
+                        page.response.error || //參數錯誤
+                        !page.response.data.list[0].title.includes(`${MONTH.toString().padStart(2, '0')}/${DATE.toString().padStart(2, '0')}`)) { //日期不正確
+                        console.error("bas: ", "在創作中無法找到答案。");
+                        reject("No result found in post.");
+                    } else {
+                        let csn = page.response.data.list[0].csn; //今天的創作文章ID
+                        console.log("bas: ", "從 blackxblue 小屋找到今日動畫瘋文章 ID：", csn);
                         GM_xmlhttpRequest({
                             method: "GET",
-                            url: "https://home.gamer.com.tw/" + result[0].getAttribute("href"),
+                            url: "https://home.gamer.com.tw/artwork.php?sn=" + csn,
                             responseType: "text",
                             onload: page => {
                                 let result = /A:(\d)/.exec(jQuery(page.response).find(".MSG-list8C, #article_content,#article_content").text().replace(/\s/g, "").replace(/：/g, ":"));
-                                if (result) {
+                                if (result.length > 0) {
                                     console.log("bas: ", "在創作中找到答案為：", result);
                                     resolve(result[1]);
                                 } else {
@@ -348,9 +353,6 @@
                                 }
                             }
                         });
-                    } else {
-                        console.error("bas: ", "沒有找到今日的創作。");
-                        reject("No matched post found.");
                     }
                 },
                 onerror: reject
