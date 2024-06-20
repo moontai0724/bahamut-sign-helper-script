@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特自動簽到（含公會、動畫瘋）
 // @namespace    https://home.gamer.com.tw/moontai0724
-// @version      4.1.6
+// @version      4.1.7
 // @description  巴哈姆特自動簽到腳本
 // @author       moontai0724
 // @match        https://*.gamer.com.tw/*
@@ -275,9 +275,10 @@
         } else if (!question.error && AUTO_ANSWER_ANIME === true) {
             console.log("bas: ", "進入自動作答動畫瘋", question);
             let answer = await getAnswer().catch(console.error);
-            console.log("bas: ", "自動作答獲取到答案為：", answer);
-            if (answer)
+            if (answer) {
+                console.log("bas: ", "自動作答獲取到答案為：", answer);
                 submitAnswer(answer).then(result => console.log("bas: ", "答案送出成功", result)).catch(error => console.error("bas: ", "送出答案發生錯誤", error));
+            }
             else
                 manualAnswer(question);
         } else {
@@ -299,16 +300,16 @@
             switch (ANSWER_SOURCE_blackxblue + ANSWER_SOURCE_DB * 2) {
                 case 3:
                     answer = await getAnswer_blackxblue().catch(async err => await getAnswer_DB().catch(console.error));
-                    console.log("bas: ", "獲取到答案為：", answer);
+                    if (answer) console.log("bas: ", "獲取到答案為：", answer);
                     break;
                 case 2:
                     answer = await getAnswer_DB().catch(console.error);
-                    console.log("bas: ", "從資料庫獲取到答案為：", answer);
+                    if (answer) console.log("bas: ", "從資料庫獲取到答案為：", answer);
                     break;
                 case 1:
                 default:
                     answer = await getAnswer_blackxblue().catch(console.error);
-                    console.log("bas: ", "從 blackxblue 小屋獲取到答案為：", answer);
+                    if (answer) console.log("bas: ", "從 blackxblue 小屋獲取到答案為：", answer);
                     break;
             }
             if (answer) resolve(answer);
@@ -321,41 +322,76 @@
      * @returns {Promise<Number>} If answer found, return answer.
      */
     function getAnswer_blackxblue() {
-        if (GM_getValue("anime_answer_date") == undefined)
-            if (window.confirm("您選擇了由 blackxblue 小屋獲取答案，是否訂閱 blackxblue？（作答過問題就不會再出現提醒）"))
-                follow("blackxblue");
+        if (GM_getValue("anime_answer_date") === undefined &&
+            window.confirm("您選擇了由 blackxblue 小屋獲取答案，是否訂閱 blackxblue？（作答過問題就不會再出現提醒）")) {
+            follow("blackxblue");
+        }
         return new Promise(function (resolve, reject) {
             GM_xmlhttpRequest({
                 method: "GET",
                 url: "https://api.gamer.com.tw/home/v2/creation_list.php?owner=blackxblue&row=1",
                 responseType: "json", // 巴哈小屋創作列表新的設計會以 json 方式取得資料
                 onload: function (page) {
-                    if (page.status != 200 || //連線錯誤（網站掛掉、API失效等）
-                        page.response.error || //參數錯誤
-                        !page.response.data.list[0].title.includes(`${MONTH.toString().padStart(2, '0')}/${DATE.toString().padStart(2, '0')}`)) { //日期不正確
-                        console.error("bas: ", "在創作中無法找到答案。");
+                    // 檢查連線是否出錯
+                    if (page.status !== 200 || page.response.error) {
+                        console.error("bas: ", "在創作中無法找到答案：", page.status !== 200 ? "連線錯誤（網站掛掉、API失效等）" : "參數錯誤");
                         reject("No result found in post.");
+                        return;
+                    }
+                    // 格式化日期 6/4 => 06/04
+                    let dateMatch = `${MONTH.toString().padStart(2, '0')}/${DATE.toString().padStart(2, '0')}`;
+                    // 檢查標題是否有今天的日期
+                    if (!page.response.data.list[0].title.includes(dateMatch)) {
+                        console.error("bas: ", "在創作中無法找到答案：", "日期不正確");
+                        // 這段是為了避免作者在內文的日期正確但標題日期錯誤的情況（20240620發生過）
+                        if (page.response.data.list[0].content.includes(`${MONTH.toString().padStart(2, '0')}/${DATE.toString().padStart(2, '0')}`)) {
+                            console.log("bas: ", "但是在創作內文找到答案了");
+                            let csn = page.response.data.list[0].csn; //今天的創作文章ID
+                            resolve(getAnswerFromPost(csn));
+                        } else {
+                            console.error("bas: ", "在創作內文也無法找到答案");
+                            reject("No result found in post.");
+                        }
                     } else {
+                        // 如果標題包含正確的日期，則嘗試解析答案
                         let csn = page.response.data.list[0].csn; //今天的創作文章ID
-                        console.log("bas: ", "從 blackxblue 小屋找到今日動畫瘋文章 ID：", csn);
-                        GM_xmlhttpRequest({
-                            method: "GET",
-                            url: "https://home.gamer.com.tw/artwork.php?sn=" + csn,
-                            responseType: "text",
-                            onload: page => {
-                                let result = /A:(\d)/.exec(jQuery(page.response).find(".MSG-list8C, #article_content,#article_content").text().replace(/\s/g, "").replace(/：/g, ":"));
-                                if (result.length > 0) {
-                                    console.log("bas: ", "在創作中找到答案為：", result);
-                                    resolve(result[1]);
-                                } else {
-                                    console.error("bas: ", "在創作中無法找到答案。");
-                                    reject("No result found in post.");
-                                }
-                            }
-                        });
+                        resolve(getAnswerFromPost(csn));
                     }
                 },
-                onerror: reject
+                onerror: function () {
+                    reject("Request failed.");
+                }
+            });
+        });
+    }
+
+    /**
+     * 從 blackxblue 創作中解析今日答案
+     * @param {string} csn - 創作文章的ID
+     * @returns {Promise<Number | null>} 如果找到答案則返回答案數字，否則返回 null。
+     */
+    function getAnswerFromPost(csn) {
+        return new Promise((resolve, reject) => {
+            console.log("bas: ", "從 blackxblue 小屋找到今日動畫瘋文章 ID：", csn);
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "https://home.gamer.com.tw/artwork.php?sn=" + csn,
+                responseType: "text",
+                onload: function (response) {
+                    // 解析出「A:」之後的數字
+                    let result = /A:(\d)/.exec(jQuery(response.responseText).find(".MSG-list8C, #article_content,#article_content").text().replace(/\s/g, "").replace(/：/g, ":"));
+                    // 確認真的有找到有效的數字
+                    if (result[1] >= 1 && result[1] <= 4) {
+                        console.log("bas: ", "在創作中找到答案為：", result);
+                        resolve(result[1]);
+                    } else {
+                        console.error("bas: ", "在創作中無法找到答案。");
+                        reject("No result found in post.");
+                    }
+                },
+                onerror: function () {
+                    reject("Request failed.");
+                }
             });
         });
     }
@@ -375,7 +411,7 @@
                         if (response.response.success)
                             resolve(response.response.message.answer);
                         else
-                            reject();
+                            reject("從資料庫獲取答案失敗");
                     },
                     onerror: reject
                 });
