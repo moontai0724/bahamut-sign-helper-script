@@ -19,8 +19,6 @@
 // @connect      script.googleusercontent.com
 // @supportURL   https://home.gamer.com.tw/creationDetail.php?sn=3852242
 // @noframes
-// @downloadURL  https://update.greasyfork.org/scripts/36964/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E8%87%AA%E5%8B%95%E7%B0%BD%E5%88%B0%EF%BC%88%E5%90%AB%E5%85%AC%E6%9C%83%E3%80%81%E5%8B%95%E7%95%AB%E7%98%8B%EF%BC%89.user.js
-// @updateURL    https://update.greasyfork.org/scripts/36964/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E8%87%AA%E5%8B%95%E7%B0%BD%E5%88%B0%EF%BC%88%E5%90%AB%E5%85%AC%E6%9C%83%E3%80%81%E5%8B%95%E7%95%AB%E7%98%8B%EF%BC%89.meta.js
 // ==/UserScript==
 
 (function () {
