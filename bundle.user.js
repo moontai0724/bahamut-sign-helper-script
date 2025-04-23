@@ -13,12 +13,12 @@
 // @connect         ani.gamer.com.tw
 // @connect         home.gamer.com.tw
 // @noframes        
-// @version         6.0.0
-// @description     巴哈姆特簽到腳本（每日、公會、動畫瘋）
+// @version         6.0.1
+// @description     打開巴哈自動跑所有簽到，包含動畫瘋、公會簽到、每日簽到等功能。
 // @author          moontai0724
 // @homepage        https://github.com/moontai0724/bahamut-sign-helper-script
 // @supportURL      https://github.com/moontai0724/bahamut-sign-helper-script/issues
-// @resource        resource_kf88ahw https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
+// @resource        resource_g66oet https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
 // ==/UserScript==
 
 (function (factory) {
@@ -586,7 +586,7 @@
         return result;
     }
 
-    var html = GM_getResourceText("resource_kf88ahw");
+    var html = GM_getResourceText("resource_g66oet");
 
     let iframe;
     function close() {
