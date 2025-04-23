@@ -2,7 +2,7 @@
   "name": "bahamut-sign-helper-script",
   "description": "打開巴哈自動跑所有簽到，包含動畫瘋、公會簽到、每日簽到等功能。",
   "license": "MIT",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "private": true,
   "author": {
     "name": "moontai0724"
