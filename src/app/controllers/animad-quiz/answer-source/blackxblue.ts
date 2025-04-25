@@ -18,7 +18,12 @@ function findAnswer(html: string) {
   const element = document.createElement("html");
 
   element.innerHTML = html;
-  const postContent = element.querySelector("#home_content")?.textContent;
+  const targets = [
+    "#home_content",
+    ".MSG-list8C, #article_content",
+    "#article_content",
+  ].join(",");
+  const postContent = element.querySelector(targets)?.textContent;
 
   if (!postContent) throw new Error("No post content found.");
 
