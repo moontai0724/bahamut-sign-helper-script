@@ -18,7 +18,7 @@
 // @author          moontai0724
 // @homepage        https://github.com/moontai0724/bahamut-sign-helper-script
 // @supportURL      https://github.com/moontai0724/bahamut-sign-helper-script/issues
-// @resource        resource_cz7st4 https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
+// @resource        resource_qn06a https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
 // ==/UserScript==
 
 (function (factory) {
@@ -591,7 +591,7 @@
         return result;
     }
 
-    var html = GM_getResourceText("resource_cz7st4");
+    var html = GM_getResourceText("resource_qn06a");
 
     let iframe;
     function close() {
