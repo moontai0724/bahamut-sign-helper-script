@@ -13,12 +13,12 @@
 // @connect         ani.gamer.com.tw
 // @connect         home.gamer.com.tw
 // @noframes        
-// @version         6.0.1
+// @version         6.0.2
 // @description     打開巴哈自動跑所有簽到，包含動畫瘋、公會簽到、每日簽到等功能。
 // @author          moontai0724
 // @homepage        https://github.com/moontai0724/bahamut-sign-helper-script
 // @supportURL      https://github.com/moontai0724/bahamut-sign-helper-script/issues
-// @resource        resource_g66oet https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
+// @resource        resource_cz7st4 https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
 // ==/UserScript==
 
 (function (factory) {
@@ -500,7 +500,12 @@
     function findAnswer(html) {
         const element = document.createElement("html");
         element.innerHTML = html;
-        const postContent = element.querySelector("#home_content")?.textContent;
+        const targets = [
+            "#home_content",
+            ".MSG-list8C, #article_content",
+            "#article_content",
+        ].join(",");
+        const postContent = element.querySelector(targets)?.textContent;
         if (!postContent)
             throw new Error("No post content found.");
         const answer = postContent.match(/[aAＡ]\s*.\s*([1-4１-４])/)?.[1];
@@ -586,7 +591,7 @@
         return result;
     }
 
-    var html = GM_getResourceText("resource_g66oet");
+    var html = GM_getResourceText("resource_cz7st4");
 
     let iframe;
     function close() {
