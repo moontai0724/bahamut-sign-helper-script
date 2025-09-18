@@ -13,12 +13,12 @@
 // @connect         ani.gamer.com.tw
 // @connect         home.gamer.com.tw
 // @noframes        
-// @version         6.0.2
+// @version         6.0.3
 // @description     打開巴哈自動跑所有簽到，包含動畫瘋、公會簽到、每日簽到等功能。
 // @author          moontai0724
 // @homepage        https://github.com/moontai0724/bahamut-sign-helper-script
 // @supportURL      https://github.com/moontai0724/bahamut-sign-helper-script/issues
-// @resource        resource_qn06a https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
+// @resource        resource_w3gzwb https://github.com/moontai0724/bahamut-sign-helper-script/raw/release/pages/animad-manual-answer/index.html
 // ==/UserScript==
 
 (function (factory) {
@@ -255,7 +255,7 @@
 
     /**
      * Generate a random hexadecimal string
-     *
+     * ⚠️ WARNING: This function does not solve CSRF token issues.
      * @param length The length of the hexadecimal string
      */
     function generateRandomHex(length = 16) {
@@ -467,7 +467,7 @@
         return response.data.list;
     }
     async function getHTML(sn) {
-        const uri = "https://api.gamer.com.tw/mobile_app/bahamut/v1/home_creation_detail_webview.php";
+        const uri = "https://home.gamer.com.tw/artwork.php";
         const params = new URLSearchParams({ sn });
         const response = await get(`${uri}?${params.toString()}`);
         return response;
@@ -498,13 +498,8 @@
         return isMonthEqual && isDayEqual;
     }
     function findAnswer(html) {
-        const element = document.createElement("html");
-        element.innerHTML = html;
-        const targets = [
-            "#home_content",
-            ".MSG-list8C, #article_content",
-            "#article_content",
-        ].join(",");
+        const element = new DOMParser().parseFromString(html, "text/html");
+        const targets = ["#article_content", "#home_content", ".MSG-list8C"].join(",");
         const postContent = element.querySelector(targets)?.textContent;
         if (!postContent)
             throw new Error("No post content found.");
@@ -591,7 +586,7 @@
         return result;
     }
 
-    var html = GM_getResourceText("resource_qn06a");
+    var html = GM_getResourceText("resource_w3gzwb");
 
     let iframe;
     function close() {
